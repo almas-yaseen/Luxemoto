@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"ginapp/config"
 	"ginapp/database"
+	"ginapp/routes"
+
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -28,6 +31,16 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func main() {
+
+	password := "luxemoto@123"
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	if err != nil {
+		fmt.Println("error hashing password", err)
+		return
+
+	}
+	fmt.Println("hashed password", string(hashedPassword))
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("error loading the config", err)
@@ -40,6 +53,13 @@ func main() {
 
 	log.Println("Database connection successful!")
 	router := gin.Default()
+	router.Use(CORSMiddleware())
+	router.LoadHTMLGlob("templates/*")
+	adminGroup := router.Group("/admin")
+	routes.AdminRoutes(adminGroup, db)
+
+	router.Static("/static", "./static")
+	router.Static("/uploads", "./uploads")
 
 	if err != nil {
 		log.Fatalf("error connecting to the database", db)
