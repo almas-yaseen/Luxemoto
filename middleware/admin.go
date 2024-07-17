@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"ginapp/domain"
 	"ginapp/utils"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 func AdminAuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString, err := c.Cookie("token")
+		fmt.Println("here is the token string", tokenString)
 
 		if err != nil {
 			c.Redirect(http.StatusFound, "/admin/login")

@@ -11,9 +11,10 @@ import (
 func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 
 	admin.GET("/login", handlers.Adminlogin)
+	admin.POST("/login", handlers.AdminLogin(db))
 	admin.Use(middleware.AdminAuthMiddleware(db))
 	admin.GET("/dashboard", handlers.AdminDashboard)
-	admin.POST("/login", handlers.AdminLogin(db))
+	admin.POST("/logout", handlers.Logout)
 
 	return admin
 

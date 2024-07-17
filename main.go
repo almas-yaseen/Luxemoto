@@ -31,22 +31,20 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func main() {
-
 	password := "luxemoto@123"
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-
 	if err != nil {
 		fmt.Println("error hashing password", err)
 		return
-
 	}
 	fmt.Println("hashed password", string(hashedPassword))
+
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("error loading the config", err)
 	}
+
 	db, err := database.ConnectDatabase(cfg)
-	fmt.Println("db is here", db)
 	if err != nil {
 		log.Fatalf("error connecting to the database: %v", err)
 	}
@@ -55,19 +53,14 @@ func main() {
 	router := gin.Default()
 	router.Use(CORSMiddleware())
 	router.LoadHTMLGlob("templates/*")
+
 	adminGroup := router.Group("/admin")
 	routes.AdminRoutes(adminGroup, db)
 
 	router.Static("/static", "./static")
 	router.Static("/uploads", "./uploads")
 
-	if err != nil {
-		log.Fatalf("error connecting to the database", db)
+	if err := router.Run("localhost:8080"); err != nil {
+		log.Fatalf("Failed to run server: %v", err)
 	}
-	err = router.Run("localhost:8080")
-
-	if err != nil {
-		log.Fatalf("localhost %v", err)
-	}
-
 }

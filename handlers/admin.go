@@ -11,10 +11,28 @@ import (
 	"gorm.io/gorm"
 )
 
-func Adminlogin(c *gin.Context) {
-	c.HTML(200, "login.html", nil)
+func Logout(c *gin.Context) {
+	c.SetCookie("token", "", -1, "/", "localhost", false, true)
+	c.Redirect(http.StatusFound, "/admin/login")
 }
 
+func Adminlogin(c *gin.Context) {
+	// Check for the presence of a token
+	token, err := c.Cookie("token")
+	fmt.Println("here is the login token", token)
+	if err == nil && token != "" {
+		// Validate the token
+		valid, _ := utils.ValidateToken(token)
+		fmt.Println("here is the valid", valid)
+		if valid {
+			// If the token is valid, redirect to the dashboard
+			c.Redirect(http.StatusFound, "/admin/dashboard")
+			return
+		}
+	}
+	// If there's no valid token, render the login page
+	c.HTML(http.StatusOK, "login.html", nil)
+}
 func AdminDashboard(c *gin.Context) {
 	c.HTML(200, "dashboard.html", nil)
 
@@ -22,7 +40,6 @@ func AdminDashboard(c *gin.Context) {
 
 func AdminLogin(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		var input domain.User
 		input.Email = c.PostForm("email")
 
