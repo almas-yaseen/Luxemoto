@@ -11,6 +11,12 @@ import (
 	"gorm.io/gorm"
 )
 
+func ProductPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "product.html", gin.H{})
+	fmt.Println("here is teh product")
+
+}
+
 func Logout(c *gin.Context) {
 	c.SetCookie("token", "", -1, "/", "localhost", false, true)
 	c.Redirect(http.StatusFound, "/admin/login")
@@ -34,7 +40,7 @@ func Adminlogin(c *gin.Context) {
 	c.HTML(http.StatusOK, "login.html", nil)
 }
 func AdminDashboard(c *gin.Context) {
-	c.HTML(200, "dashboard.html", nil)
+	c.HTML(200, "dashboard.html", gin.H{})
 
 }
 

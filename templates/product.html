@@ -1,0 +1,342 @@
+
+{{template "base" .}}
+{{define "content"}}
+<main class="main-wrap">
+    
+    <section class="content-main">
+        <div class="row">
+            <div class="col-9">
+                <div class="content-header">
+                    <h2 class="content-title">Add New Product</h2>
+                    <div>
+                        <!-- <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button> -->
+                        <!-- <button type="submit" class="btn btn-md rounded font-sm hover-up">Add product</button> -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Basic</h4> 
+                    </div>
+                    <div class="card-body">
+                        <!-- /admin/postadd-product -->
+                        <form action="javascript:void(0)" method="post" enctype="multipart/form-data" id="productForm">
+                            <div class="mb-4">
+                                <label for="product_name" class="form-label">Product Name</label>
+                                <input type="text" placeholder="Enter name" class="form-control" id="productName" name="productName" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Product Description</label>
+                                <textarea placeholder="Enter description" class="form-control" rows="4" id="productDiscription" name="productDiscription" required></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Regular price</label>
+                                        <div class="row gx-2">
+                                            <input placeholder="₹" type="number" class="form-control" id="regularPrice" name="regularPrice" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Selling price</label>
+                                        <input placeholder="₹" type="number" class="form-control" id="sellingPrice" name="sellingPrice" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <label class="form-label" for="productStatus">Status</label>
+                                    <select class="form-select" id="productStatus" name="productStatus" required>
+                                        <option value="" disabled selected>Select status</option>
+                                        <option value="Block">Block</option>
+                                        <option value="Unblock">Unblock</option>
+                                    </select>
+                                </div>
+                                
+                            </div>
+                            <div class="row gx-2">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" id="category" name="productCategory" required>
+                                    <option disabled selected value="">Select a category</option>
+                                    <% categories.forEach(category => {%> 
+                                        <option value="<%= category.catgName %>"><%= category.catgName %></option> 
+                                    <%}) %>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label">Brand</label>
+                                <input type="text" placeholder="Enter brand" class="form-control" id="productBrand" name="productBrand" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Size (in ml)</label>
+                                        <div class="row gx-2">
+                                            <input placeholder="Enter size" type="number" class="form-control" id="productSize" name="productSize" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Stock</label>
+                                        <input placeholder="Enter stock" type="number" class="form-control" id="productStock" name="productStock" required> 
+                                    </div>
+                                </div>
+                            </div>
+                                <button type="submit" class="btn btn-md rounded font-sm hover-up">Add product</button>
+                        <!-- form clossing was here -->
+                    </div>
+                </div> 
+            </div>
+            <div class="col-lg-5">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Media</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="input-upload">
+                            <img src="/static/img/images.png" alt="" width="50px" height="50px">
+                            <input required class="form-control" type="file" id="productImg" name="productImg" accept="image/*" multiple>
+                            <div id="imagePreview" class="mt-2 d-flex flex-wrap"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </form>
+            
+            <script>
+                // Function to handle file input change event
+                function previewImages() {
+                    const preview = document.getElementById("imagePreview");
+                    const fileInput = document.getElementById("productImg");
+                    const files = fileInput.files;
+            
+                    preview.innerHTML = "";
+            
+                    for (const file of files) {
+                        const reader = new FileReader();
+            
+                        reader.onload = function (e) {
+                            const imgContainer = document.createElement("div");
+                            imgContainer.className = "img-container";
+            
+                            const deselectBtn = document.createElement("button");
+                            deselectBtn.textContent = "Deselect";
+                            deselectBtn.className = "btn btn-sm btn-danger";
+                            deselectBtn.addEventListener("click", function () {
+                                checkbox.checked = !checkbox.checked;
+                            });
+
+                            imgContainer.className = "img-container d-flex justify-content-between align-items-center"; // Flex container
+                            imgContainer.style.marginBottom = "10px"; // Adjust margin as needed
+
+                            const img = document.createElement("img");
+                            img.src = e.target.result;
+                            img.className = "img-thumbnail";
+                            img.style.maxWidth = "275px";
+                            img.style.height = "200px";
+
+                            const checkbox = document.createElement("input");
+                            checkbox.type = "checkbox";
+                            checkbox.className = "form-check-input";
+                            checkbox.id = "chk_" + file.name;
+
+                            imgContainer.appendChild(img);
+                            imgContainer.appendChild(checkbox);
+                            imgContainer.appendChild(deselectBtn);
+
+                            preview.appendChild(imgContainer);
+                        };
+            
+                        reader.readAsDataURL(file);
+                    }
+                }
+            
+                document.getElementById("productImg").addEventListener("change", previewImages);
+
+                const form = document.getElementById("productForm");
+
+            
+                document.addEventListener("DOMContentLoaded", function () {
+                    let formData = [];
+                    const productForm = document.getElementById("productForm");
+                    productForm.addEventListener("submit", async (event)=> {
+                        if (!validateForm()) {
+                            event.preventDefault();
+                        }else{
+                            event.preventDefault();
+                            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                            const imageData = new FormData();
+
+                            for (let i = 0; i < checkboxes.length; i++) {
+                                if (!checkboxes[i].checked) {
+                                imageData.append("productImg", document.getElementById("productImg").files[i]); 
+                                }
+                            }
+                            
+                            const productName = document.getElementById("productName").value;
+                            const productDescription = document.getElementById("productDiscription").value;
+                            const regularPrice = document.getElementById("regularPrice").value;
+                            const sellingPrice = document.getElementById("sellingPrice").value;
+                            const productStatus = document.getElementById("productStatus").value;
+                            const category = document.getElementById("category").value;
+                            const productBrand = document.getElementById("productBrand").value;
+                            const productSize = document.getElementById("productSize").value;
+                            const productStock = document.getElementById("productStock").value;
+                            imageData.append("productName", productName);
+                            imageData.append("productDiscription", productDescription);
+                            imageData.append("regularPrice", regularPrice);
+                            imageData.append("sellingPrice", sellingPrice);
+                            imageData.append("productStatus", productStatus);
+                            imageData.append("productCategory", category);
+                            imageData.append("productBrand", productBrand);
+                            imageData.append("productSize", productSize);
+                            imageData.append("productStock", productStock);
+                            
+                            const response = await fetch(`/admin/postadd-product`, {
+                                method: 'POST',
+                                body: imageData, 
+                            });
+                            
+                            const data = await response.json();
+                            if (data.message) {
+                                Swal.fire({
+                                    position: "top-center",
+                                    icon: "success",
+                                    title: data.message,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                                setTimeout(() => {
+                                    window.location.href = "/admin/product-list" 
+                                }, 1500);
+                                
+                            } else if(data.error) {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: data.error,
+                                    text: "OOps" || "Unknown Error",
+                                    footer: '<a href="#">Why do I have this issue?</a>',
+                                    timer: 1500
+                                });
+                            }  
+
+                        }
+                    });
+                    
+                    function validateForm() {
+                        const productName = document.getElementById("productName").value;
+                        const productDescription = document.getElementById("productDiscription").value;
+                        const regularPrice = document.getElementById("regularPrice").value;
+                        const sellingPrice = document.getElementById("sellingPrice").value;
+                        const productStatus = document.getElementById("productStatus").value;
+                        const category = document.getElementById("category").value;
+                        const productBrand = document.getElementById("productBrand").value;
+                        const productSize = document.getElementById("productSize").value;
+                        const productStock = document.getElementById("productStock").value;
+                        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                        let anyCheckboxChecked = 0;
+            
+                        if (isNaN(regularPrice) || isNaN(sellingPrice) || isNaN(productSize) || isNaN(productStock)) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Price, Size, and Stock must be numeric values!',
+                            });
+                            return false;
+                        }
+            
+                        // Validate business rules
+                        if (regularPrice <= 0 || sellingPrice <= 0) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Price must be more than zero!',
+                            });
+                            return false;
+                        }
+            
+                        if (sellingPrice >= regularPrice) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Selling Price must be lesser than the Actual Price!',
+                            });
+                            return false;
+                        }
+            
+                        if (productSize <= 0 || productStock < 0) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Stock must be above zero or zero',
+                            });
+                            return false;
+                        }
+            
+                        if (!productName.trim() || !productDescription.trim() || !regularPrice.trim() || !sellingPrice.trim() || !productStatus.trim() || !category.trim() || !productBrand.trim() || !productSize.trim() || !productStock.trim()) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'All fields are required!',
+                            });
+                            return false;
+                        }
+                        for (const checkbox of checkboxes) {
+                        if (checkbox.checked) {
+                            anyCheckboxChecked = anyCheckboxChecked + 1;
+                        }       
+                        }
+                        if (checkboxes.length === anyCheckboxChecked) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'All Image Deselected',
+                                text: 'Please leave atleast one image',
+                            });
+                            return false;
+                        }
+            
+                        return true; // Submit the form
+                    }
+                });
+            </script>
+
+        </div>
+    </section> <!-- content-main end// -->
+    <footer class="main-footer font-xs">
+        <div class="row pb-30 pt-15">
+            <div class="col-sm-6">
+                <script>
+                document.write(new Date().getFullYear())
+                </script> ©, Ziffy Stores
+            </div>
+            <div class="col-sm-6">
+                <div class="text-sm-end">
+                    All rights reserved
+                </div>
+            </div>
+        </div>
+    </footer>
+</main>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/adminAssets/js/vendors/select2.min.js"></script>
+<script src="/adminAssets/js/vendors/perfect-scrollbar.js"></script>
+<script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
+<!-- Main Script -->
+<script src="/adminAssets/js/main.js" type="text/javascript"></script>
+
+</body>
+
+
+<!-- Mirrored from wp.alithemes.com/html/evara/evara-frontend/index-2.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 15 Jul 2023 10:10:07 GMT -->
+</html>
+
+
+{{end}}

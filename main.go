@@ -52,9 +52,14 @@ func main() {
 	log.Println("Database connection successful!")
 	router := gin.Default()
 	router.Use(CORSMiddleware())
+
 	router.LoadHTMLGlob("templates/*")
 
+	// tmpl := template.Must(template.New("").ParseFiles(files...))
+
+	// router.SetHTMLTemplate(tmpl)
 	adminGroup := router.Group("/admin")
+
 	routes.AdminRoutes(adminGroup, db)
 
 	router.Static("/static", "./static")
