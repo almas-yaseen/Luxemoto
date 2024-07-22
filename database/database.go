@@ -23,6 +23,8 @@ func ConnectDatabase(cfg config.Config) (*gorm.DB, error) {
 	DB = db
 
 	DB.AutoMigrate(&domain.User{})
+	DB.AutoMigrate(&domain.Brand{})
+	DB.AutoMigrate(&domain.Vehicle{})
 
 	return DB, nil
 

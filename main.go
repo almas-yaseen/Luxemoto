@@ -53,7 +53,7 @@ func main() {
 	router := gin.Default()
 	router.Use(CORSMiddleware())
 
-	router.LoadHTMLGlob("templates/*")
+	router.LoadHTMLGlob("templates/*.html")
 
 	// tmpl := template.Must(template.New("").ParseFiles(files...))
 
