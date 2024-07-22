@@ -629,8 +629,13 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Brand</label>
                                                     <div class="row gx-2">
-                                                        <input placeholder="Brand" type="text" class="form-control"
-                                                            id="brand" name="Brand" required>
+                                                        <select name="brand" class="form-control" required>
+
+
+                                                            {{range .Brands}}
+                                                            <option value="{{.ID}}">{{.Name}}</option>
+                                                            {{end}}
+                                                        </select>
                                                     </div>
                                                 </div>
                                             </div>

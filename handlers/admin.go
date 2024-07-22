@@ -116,7 +116,7 @@ func ProductPage(db *gorm.DB) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
-		var brands domain.Brand
+		var brands []domain.Brand
 		if err := db.Find(&brands).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the brand"})
 		}
@@ -132,10 +132,16 @@ func ProductPage(db *gorm.DB) gin.HandlerFunc {
 		fuelTypes := []string{
 			domain.FuelTypePetrol,
 			domain.FuelTypeDiesel,
+			domain.FuelTypeHybrid,
+			domain.FuelTypeCng,
 			domain.FuelTypeElectric,
 		}
 
-		c.HTML(http.StatusOK, "product.html", gin.H{"brands": brands})
+		c.HTML(http.StatusOK, "product.html", gin.H{
+			"Brands":    brands,
+			"CarTypes":  carTypes,
+			"FuelTypes": fuelTypes,
+		})
 		fmt.Println("here is teh product")
 	}
 

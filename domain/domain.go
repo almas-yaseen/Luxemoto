@@ -25,6 +25,7 @@ const (
 	FuelTypePetrol   = "petrol"
 	FuelTypeDiesel   = "diesel"
 	FuelTypeHybrid   = "hybrid"
+	FuelTypeCng      = "cng"
 	FuelTypeElectric = "electric"
 )
 
