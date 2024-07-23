@@ -182,9 +182,7 @@
                                 </g>
                             </svg>
                         </div>
-                        <span class="nav-link-text ms-1">Products</span>
-
-
+                        <span class="nav-link-text ms-1"> Add Products</span>
                     </a>
                 <li class="nav-item">
                     <form action="/admin/logout" method="POST">
@@ -611,7 +609,7 @@
                                 </div>
                                 <div class="card-body">
                                     <!-- /admin/postadd-product -->
-                                    <form action="javascript:void(0)" method="post" enctype="multipart/form-data"
+                                    <form action="/admin/add_product" method="post" enctype="multipart/form-data"
                                         id="productForm">
 
 
@@ -661,18 +659,26 @@
                                             </div>
                                             <div class="col-lg-4">
                                                 <div class="mb-4">
-                                                    <label class="form-label">CarType</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="cartype" type="text" class="form-control"
-                                                            id="cartype" name="cartype" required>
-                                                    </div>
+                                                    <label>Car Type</label>
+                                                    <select name="car_type" id="carType" class="form-control" required>
+                                                        {{range .CarTypes}}
+                                                        <option value="{{.}}">{{.}}</option>
+                                                        {{end}}
+
+                                                    </select>
+                                                   
                                                 </div>
                                             </div>
                                             <div class="col-lg-4">
                                                 <div class="mb-4">
-                                                    <label class="form-label">FuelType</label>
-                                                    <input placeholder="fueltype" type="text" class="form-control"
-                                                        id="fueltype" name="fueltype" required>
+                                                    <label>Fuel Type</label>
+                                                    <select name="fuel_type" id="fuel_type" class="form-control" required>
+{{range .FuelTypes}}
+
+<option value="{{.}}">{{.}}</option>
+{{end}}
+
+                                                    </select>       
                                                 </div>
                                             </div>
 
@@ -733,7 +739,7 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Price</label>
                                                     <div class="row gx-2">
-                                                        <input placeholder="price" type="text" class="form-control"
+                                                        <input placeholder="price" type="number" class="form-control"
                                                             id="price" name="price" required>
                                                     </div>
                                                 </div>
@@ -749,6 +755,40 @@
 
                                                 </div>
                                             </div>
+
+                                            <div class="col-lg-4">
+                                                <div class="mb-4">
+                                                    <label class="form-label">Engine size</label>
+                                                    <div class="row gx-2">
+                                                        <input placeholder="Engine size" type="text" class="form-control"
+                                                            id="price" name="engine_size" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <div class="mb-4">
+                                                    <label class="form-label">Insurance date</label>
+                                                    <div class="row gx-2">
+                                                        <input placeholder="Insurance date" type="text" class="form-control"
+                                                            id="price" name="insurance_date" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <div class="mb-4">
+                                                    <label class="form-label">Location</label>
+                                                    <div class="row gx-2">
+                                                        <input placeholder="Location" type="text" class="form-control"
+                                                            id="price" name="location" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+
+                                            
+                                        
 
 
 

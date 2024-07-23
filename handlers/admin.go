@@ -173,8 +173,33 @@ func AdminDashboard(c *gin.Context) {
 	c.HTML(200, "dashboard.html", gin.H{})
 }
 
-func PremiumCars(c *gin.Context) {
-	c.HTML(200, "PremiumCars.html", gin.H{})
+func PremiumCars(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			cars   []domain.Vehicle
+			brands []domain.Brand
+		)
+
+		if err := db.Preload("Brand").Find(&cars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch the cars"})
+			return
+
+		}
+
+		for i := range cars {
+			if err := db.Model(&cars[i]).Association("Images").Find(&cars[i].Images); err != nil {
+
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch the images"})
+				return
+			}
+		}
+
+		c.HTML(200, "PremiumCars.html", gin.H{
+			"Cars":   cars,
+			"Brands": brands,
+		})
+	}
+
 }
 
 func AdminLogin(db *gorm.DB) gin.HandlerFunc {

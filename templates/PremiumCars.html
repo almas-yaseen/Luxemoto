@@ -494,62 +494,69 @@
 
 
       <div class="table-responsive">
-        <table class="table w-100">
+        <table class="table">
   <thead>
     <tr>
-      <th scope="col">#</th>
-      <th scope="col">First</th>
-      <th scope="col">Last</th>
-      <th scope="col">Handle</th>
-            <th scope="col">#</th>
-      <th scope="col">First</th>
-      <th scope="col">Last</th>
-      <th scope="col">Handle</th>
-      <th scope="col">#</th>
-      <th scope="col">First</th>
-      <th scope="col">Last</th>
-      <th scope="col">Handle</th>
-      <th scope="col">#</th>
-      <th scope="col">First</th>
-      <th scope="col">Last</th>
-      <th scope="col">Handle</th>
-      <th scope="col">#</th>
-      <th scope="col">First</th>
-      <th scope="col">Last</th>
-      <th scope="col">Handle</th>
+      <th>ID</th>
+      <th>Brand</th>
+      <th>Cartype</th>
+      <th>Fueltype</th>
+      <th>Model</th>
+      <th>Year</th>
+      <th>Color</th>
+      <th>Variant</th>
+      <th>Kms</th>
+      <th>Ownership</th>
+      <th>Transmission</th>
+      <th>Price</th>
+      <th >Image</th>
+      <th>RegNo</th>
+      <th>Status</th>
+      <th>Engine size</th>
+      <th>Insurance date</th>
+      <th >Location</th>
+      <th>Action</th>
+
     </tr>
   </thead>
   <tbody>
+    {{range .Cars}}
     <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
+      <td>{{.ID}}</td>
+      <td>{{.Brand.Name}}</td>
+      <td>{{.CarType}}</td>
+      <td>{{.FuelType}}</td>
+      <td>{{.Model}}</td>
+      <td>{{.Year}}</td>
+      <td>{{.Color}}</td>
+      <td>{{.Variant}}</td>
+      <td>{{.Kms}}</td>
+      <td>{{.Ownership}}</td>
+      <td>{{.Transmission}}</td>
+      <td>{{.Price}}</td>
+  
+        <td>
+            <div class="image-field">
+                {{ if gt (len .Images) 0 }}
+                    <img src="{{ (index .Images 0).Path }}" alt="Car Image" class="square-image" style="max-width: 50px; height: auto;">
+                {{ else }}
+                    <p>No image available</p>
+                {{ end }}
+            </div>
+        </td>
+      <td>{{.RegNo}}</td>
+      <td>{{.Status}}</td>
+      <td>{{.Engine_size}}</td>
+      <td>{{.Insurance_date}}</td>
+      <td>{{.Location}}</td>
+      <td>
+        <button type="button" class="btn btn-sm btn-primary">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger">Delete</button>
+      </td>
     </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>Larry</td>
-      <td>the Bird</td>
-      <td>@twitter</td>
-      <th scope="row">3</th>
-      <td>Larry</td>
-      <td>the Bird</td>
-      <td>@twitter</td>
-    </tr>
+
+    {{end}}
+  
   </tbody>
 </table>
 

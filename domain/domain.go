@@ -39,19 +39,19 @@ type User struct {
 }
 
 type Vehicle struct {
-	ID             uint      `gorm:"primaryKey;autoIncrement"json:"id"`
-	Model          string    `json:"model"`
-	BrandID        uint      `json:"brand_id"`
-	Brand          Brand     `gorm:"foreignKey:BrandID" json:"brand"`
-	Year           int       `json:"year"`
-	Color          string    `json:"color"`
-	CarType        string    `json:"car_type"`
-	Images         []Image   `gorm:"foreignKey:CarID;constraint:OnDelete:CASCADE"json:"images"`
-	FuelType       string    `json:"fuel_type"`
-	Variant        string    `json:"variant"`
-	Kms            int       `json:"kms"`
-	Ownership      int       `json:"ownership"`
-	Bannerimage    string    `json:"bannerimage"`
+	ID        uint    `gorm:"primaryKey;autoIncrement"json:"id"`
+	Model     string  `json:"model"`
+	BrandID   uint    `json:"brand_id"`
+	Brand     Brand   `gorm:"foreignKey:BrandID" json:"brand"`
+	Year      int     `json:"year"`
+	Color     string  `json:"color"`
+	CarType   string  `json:"car_type"`
+	Images    []Image `gorm:"foreignKey:CarID;constraint:OnDelete:CASCADE"json:"images"`
+	FuelType  string  `json:"fuel_type"`
+	Variant   string  `json:"variant"`
+	Kms       int     `json:"kms"`
+	Ownership int     `json:"ownership"`
+
 	Transmission   string    `json:"transmission"`
 	RegNo          string    `json:"regno"`
 	Status         string    `json:"status"`
