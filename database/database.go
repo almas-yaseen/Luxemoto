@@ -21,6 +21,7 @@ func ConnectDatabase(cfg config.Config) (*gorm.DB, error) {
 
 	}
 	DB = db
+	fmt.Println("here is DB", DB)
 
 	DB.AutoMigrate(&domain.User{})
 	DB.AutoMigrate(&domain.Brand{})

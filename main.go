@@ -45,6 +45,7 @@ func main() {
 	}
 
 	db, err := database.ConnectDatabase(cfg)
+	fmt.Println("come on db", db)
 	if err != nil {
 		log.Fatalf("error connecting to the database: %v", err)
 	}
