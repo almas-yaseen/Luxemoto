@@ -151,3 +151,20 @@
                         return true; // Submit the form
                     }
                 });
+                function toggleImageVisibility(id) {
+                    console.log('Toggle visibility for ID:', id); // Debugging step
+                    var checkbox = document.querySelector(`input[name="delete_images"][value="${id}"]`);
+                    var imageContainer = document.getElementById(`container_${id}`);
+                    console.log('Checkbox:', checkbox); // Debugging step
+                    console.log('Image Container:', imageContainer); // Debugging step
+                    if (checkbox && imageContainer) {
+                        if (checkbox.checked) {
+                            imageContainer.style.display = 'none';
+                        } else {
+                            imageContainer.style.display = 'block';
+                        }
+                    } else {
+                        console.error('Element not found for ID:', id); // Debugging step
+                    }
+                }
+        

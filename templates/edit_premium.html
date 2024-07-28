@@ -21,6 +21,56 @@
     <link href="/static/css/nucleo-svg.css" rel="stylesheet" />
     <!-- CSS Files -->
     <link id="pagestyle" href="/static/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
+    <style>
+              #imagePreview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            /* 3 columns with equal width */
+            gap: 10px;
+            /* Adjust spacing between images */
+        }
+
+        .square-image {
+            width: 60%;
+            /* Occupy full width of its grid cell */
+            height: auto;
+            /* Maintain aspect ratio */
+            object-fit: cover;
+            /* Ensure the image covers the entire container */
+            border-radius: 5px;
+            /* Optional: Add rounded corners */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            /* Optional: Add shadow effect */
+        }
+
+        /* fayas */
+        .hidden-checkbox {
+            display: none;
+        }
+
+        .custom-checkbox {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            border-radius: 3px;
+            background-color: #ccc;
+            color: #fff;
+            cursor: pointer;
+            user-select: none;
+            font-weight: bold;
+        }
+
+        .custom-checkbox:hover {
+            background-color: #7c7a7a;
+        }
+
+        .hidden-checkbox:checked+.custom-checkbox {
+            background-color: #00ff00;
+            color: #000;
+        }
+    </style>
     <!-- Nepcha Analytics (nepcha.com) -->
     <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
     <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
@@ -96,7 +146,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link  " href="/pages/billing.html">
+                    <a class="nav-link  " href="/admin/MiniCars">
                         <div
                             class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                             <svg width="12px" height="12px" viewBox="0 0 43 36" version="1.1"
@@ -595,7 +645,7 @@
                     <div class="row">
                         <div class="col-9">
                             <div class="content-header">
-                                <h2 class="content-title">Add New Product</h2>
+                                <h2 class="content-title">Edit Product</h2>
                                 <div>
                                     <!-- <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button> -->
                                     <!-- <button type="submit" class="btn btn-md rounded font-sm hover-up">Add product</button> -->
@@ -609,7 +659,7 @@
                                 </div>
                                 <div class="card-body">
                                     <!-- /admin/postadd-product -->
-                                    <form action="/admin/add_product" method="post" enctype="multipart/form-data"
+                                    <form action="/admin/edit_page_premium/{{.Car.ID}}" method="post" enctype="multipart/form-data"
                                         id="productForm">
 
 
@@ -619,7 +669,7 @@
                                                     <label class="form-label">Model</label>
                                                     <div class="row gx-2">
                                                         <input placeholder="model" type="text" class="form-control"
-                                                            id="model" name="model" required>
+                                                            id="model" value="{{.Car.Model}}" name="model" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -631,7 +681,7 @@
 
 
                                                             {{range .Brands}}
-                                                            <option value="{{.ID}}">{{.Name}}</option>
+                                                            <option value="{{.ID}}" {{if eq .ID $.Car.BrandID}}selected{{end}}>{{.Name}}</option>
                                                             {{end}}
                                                         </select>
                                                     </div>
@@ -640,7 +690,7 @@
                                             <div class="col-lg-4">
                                                 <div class="mb-4">
                                                     <label class="form-label">Year</label>
-                                                    <input placeholder="year" type="text" class="form-control" id="year"
+                                                    <input placeholder="year" value="{{.Car.Year}}" type="text" class="form-control" id="year"
                                                         name="year" required>
                                                 </div>
                                             </div>
@@ -653,7 +703,7 @@
                                                     <label class="form-label">Color</label>
                                                     <div class="row gx-2">
                                                         <input placeholder="color" type="text" class="form-control"
-                                                            id="color" name="color" required>
+                                                            id="color" value="{{.Car.Color}}" name="color" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -661,25 +711,24 @@
                                                 <div class="mb-4">
                                                     <label>Car Type</label>
                                                     <select name="car_type" id="carType" class="form-control" required>
-                                                        {{range .CarTypes}}
-                                                        <option value="{{.}}">{{.}}</option>
+                                                        {{range .car_types}}
+                                                        <option value="{{.}}" {{if eq . $.Car.CarType}}selected{{end}}>
+                                                            {{.}}
+                                                        </option>
                                                         {{end}}
-
                                                     </select>
-
                                                 </div>
                                             </div>
                                             <div class="col-lg-4">
                                                 <div class="mb-4">
                                                     <label>Fuel Type</label>
-                                                    <select name="fuel_type" id="fuel_type" class="form-control"
-                                                        required>
-                                                        {{range .FuelTypes}}
+                                                    <select name="fuel_type" id="fuel_type" class="form-control" required>
+{{range .fuel_types}}
 
-                                                        <option value="{{.}}">{{.}}</option>
-                                                        {{end}}
+<option value="{{.}}" {{if eq . $.Car.FuelType}} selected {{end}}>{{.}}</option>
+{{end}}
 
-                                                    </select>
+                                                    </select>       
                                                 </div>
                                             </div>
 
@@ -693,7 +742,7 @@
                                                     <label class="form-label">Variant</label>
                                                     <div class="row gx-2">
                                                         <input placeholder="variant" type="text" class="form-control"
-                                                            id="variant" name="variant" required>
+                                                            id="variant" value="{{.Car.Variant}}" name="variant" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -702,7 +751,7 @@
                                                     <label class="form-label">Kms</label>
                                                     <div class="row gx-2">
                                                         <input placeholder="kms" type="number" class="form-control"
-                                                            id="kms" name="kms" required>
+                                                            id="kms" value="{{.Car.Kms}}" name="kms" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -710,7 +759,7 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Ownership</label>
                                                     <input placeholder="Ownership" type="text" class="form-control"
-                                                        id="ownership" name="ownership" required>
+                                                        id="ownership" value="{{.Car.Ownership}}" name="ownership" required>
                                                 </div>
                                             </div>
 
@@ -722,7 +771,7 @@
                                                     <label class="form-label">Transmission</label>
                                                     <div class="row gx-2">
                                                         <input placeholder="transmission" type="text"
-                                                            class="form-control" id="transmission" name="transmission"
+                                                            class="form-control" value="{{.Car.Transmission}}" id="transmission" name="transmission"
                                                             required>
                                                     </div>
                                                 </div>
@@ -732,7 +781,7 @@
                                                     <label class="form-label">RegNo</label>
                                                     <div class="row gx-2">
                                                         <input placeholder="regno" type="text" class="form-control"
-                                                            id="regno" name="regno" required>
+                                                            id="regno" value="{{.Car.RegNo}}" name="regno" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -741,7 +790,7 @@
                                                     <label class="form-label">Price</label>
                                                     <div class="row gx-2">
                                                         <input placeholder="price" type="number" class="form-control"
-                                                            id="price" name="price" required>
+                                                            id="price" value="{{.Car.Price}}" name="price" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -749,8 +798,8 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Status</label>
                                                     <select name="status" class="form-control" required>
-                                                        <option value="available">Available</option>
-                                                        <option value="sold">Sold</option>
+                                  <option value="sold" {{if eq .Car.Status "sold" }}selected {{end}}>Sold</option>
+                                  <option value="available" {{if eq .Car.Status "available" }}selected {{end}}>Available</option>
 
                                                     </select>
 
@@ -761,8 +810,8 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Engine size</label>
                                                     <div class="row gx-2">
-                                                        <input placeholder="Engine size" type="text"
-                                                            class="form-control" id="price" name="engine_size" required>
+                                                        <input placeholder="Engine size" type="text" class="form-control"
+                                                            id="price" value="{{.Car.Engine_size}}" name="engine_size" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -770,9 +819,8 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Insurance date</label>
                                                     <div class="row gx-2">
-                                                        <input placeholder="Insurance date" type="text"
-                                                            class="form-control" id="price" name="insurance_date"
-                                                            required>
+                                                        <input placeholder="Insurance date" type="text" class="form-control"
+                                                            id="price" value="{{.Car.Insurance_date}}" name="insurance_date" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -781,30 +829,39 @@
                                                     <label class="form-label">Location</label>
                                                     <div class="row gx-2">
                                                         <input placeholder="Location" type="text" class="form-control"
-                                                            id="price" name="location" required>
+                                                            id="price" value="{{.Car.Location}}" name="location" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <div class="mb-4">
+                                                    <label class="form-label">Location</label>
+                                                    <div class="row gx-2">
+                                                        <input placeholder="Location" type="text" class="form-control"
+                                                            id="price" value="{{.Car.Location}}" name="location" required>
                                                     </div>
                                                 </div>
                                             </div>
 
+
                                             <div class="col-lg-4">
                                                 <div class="mb-4">
-                                                    <label>Vehicle type</label>
-                                                    <select name="vehicle_type" id="carType" class="form-control"
-                                                        required>
-                                                        {{range .Vehicle_type}}
-                                                        <option value="{{.}}">{{.}}</option>
+                                                    <label>Vehicle Type</label>
+                                                    <select name="vehicle_type" id="vehicle_type" class="form-control" required>
+                                                        {{range .vehicle_types}}
+
+                                                        <option value="{{.}}" {{if eq . $.Car.Vehicle_type}} selected{{end}}>{{.}}</option>
+
                                                         {{end}}
-
                                                     </select>
-
                                                 </div>
                                             </div>
 
 
 
 
-
-
+                                            
+                                        
 
 
 
@@ -828,20 +885,52 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label>Images</label>
-                                        <div class="mb-2">
-                                            <img src="/static/img/images.png" alt="Placeholder Image" width="50px"
-                                                height="50px">
+                                        <label>Update Images</label>
+                                        <div id="existingImages" class="image-grid d-flex flex-wrap">
+                                            {{ if .Car.Images }}
+                                            {{ range .Car.Images }}
+                                            <div class="existing-image-container m-2" id="container_{{ .ID }}">
+                                                <input type="checkbox" id="delete_image_{{ .ID }}" name="delete_images" value="{{ .ID }}" onchange="toggleImageVisibility('{{ .ID }}')" class="hidden-checkbox" />
+                                                <div class="w-full d-flex justify-content-end">
+                                                    <label for="delete_image_{{ .ID }}" class="custom-checkbox ">x</label>
+                                                </div>
+                                        
+                                                <div class="d-flex justify-content-center align-items-center position-relative" style="width: 100px; height: 100px;">
+                                                    <img style="width: 100%; height: 100%;" src="{{ .Path }}" class="existing-image" alt="Existing Image" id="image_{{ .ID }}" />
+                                                    <label for="replace_image_{{ .ID }}" class="position-absolute center-icon btn btn-outline-dark btn-sm">
+                                                        <i class="fa fa-plus" aria-hidden="true" style="cursor: pointer;"></i>
+                                                    </label>
+                                                </div>
+                                                
+                                                <input type="file" id="replace_image_{{ .ID }}" name="replace_image_{{ .ID }}" class="form-control-file image-input" accept="image/*" style="display:none;" onchange="replaceImage('{{ .ID }}', event)" />
+                                            </div>
+                                            {{ end }}
+                                            {{ else }}
+                                            <p>No images available.</p>
+                                            {{ end }}
                                         </div>
-                                        <div id="imageInputsContainer">
-
-                                            <input type="file" name="images[]" class="form-control-file image-input"
-                                                accept="image/*" required>
-                                        </div>
-                                        <button type="button" id="addImageInput" class="btn btn-primary mt-2">Add
-                                            Another Image</button>
-                                        <div id="imagePreview"></div>
+                                        
                                     </div>
+                                    <div class="row">
+                                        <div class="container">
+                                            <div class="form-group">
+                                                <label>Add More Images</label>
+                                                <div id="imageInputsContainer">
+                                                    <input type="file" name="images[]"
+                                                        class="form-control-file image-input" accept="image/*" />
+                                                </div>
+                                                <button type="button" id="addImageInput"
+                                                    class="btn btn-primary mt-2">Add Another Image</button>
+                                            </div>
+                                            <div id="imagePreview"></div>
+                                            <div id="ReplaceImage"></div>
+                                        </div>
+                                    </div>
+
+
+
+
+                                    
                                 </div>
                             </div>
                         </div>
@@ -992,8 +1081,8 @@
         </div>
     </div>
     <!--   Core JS Files   -->
-    <script>
-        function addImageInput() {
+       <script>
+                function addImageInput() {
             const container = document.getElementById('imageInputsContainer');
             const newInput = document.createElement('input');
             newInput.type = 'file';
@@ -1003,17 +1092,17 @@
             container.appendChild(newInput);
         }
         // Event listener to handle click on the "Add Another Image" button
-        document.getElementById('addImageInput').addEventListener('click', function () {
+        document.getElementById('addImageInput').addEventListener('click', function() {
             addImageInput();
         });// Event listener to handle change in file inputs
-        document.getElementById('imageInputsContainer').addEventListener('change', function (event) {
+        document.getElementById('imageInputsContainer').addEventListener('change', function(event) {
             if (event.target && event.target.classList.contains('image-input')) {
                 const files = event.target.files;
                 const previewContainer = document.getElementById('imagePreview');
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     const reader = new FileReader();
-                    reader.onload = function () {
+                    reader.onload = function() {
                         const image = new Image();
                         image.src = reader.result;
                         image.style = 'width: 50px; height: 50px;'
@@ -1024,19 +1113,48 @@
                 }
             }
         });
-    </script>
+        function toggleImageVisibility(id) {
+                    console.log('Toggle visibility for ID:', id); // Debugging step
+                    var checkbox = document.querySelector(`input[name="delete_images"][value="${id}"]`);
+                    var imageContainer = document.getElementById(`container_${id}`);
+                    console.log('Checkbox:', checkbox); // Debugging step
+                    console.log('Image Container:', imageContainer); // Debugging step
+                    if (checkbox && imageContainer) {
+                        if (checkbox.checked) {
+                            imageContainer.style.display = 'none';
+                        } else {
+                            imageContainer.style.display = 'block';
+                        }
+                    } else {
+                        console.error('Element not found for ID:', id); // Debugging step
+                    }
+                }
+            function replaceImage(imageID, event) {
+            var fileInput = event.target;
+            var file = fileInput.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var imageElement = document.getElementById('image_' + imageID);
+                imageElement.src = e.target.result;
+            }
+
+            reader.readAsDataURL(file);
+
+            // Optionally, you can also submit the form automatically to save the new image on the server
+            // var form = fileInput.closest('form');
+            // form.submit();
+        }
+        
+       </script>
     <script src="/static/js/core/popper.min.js"></script>
     <script src="/static/js/core/bootstrap.min.js"></script>
     <script src="/static/js/plugins/perfect-scrollbar.min.js"></script>
     <script src="/static/js/plugins/smooth-scrollbar.min.js"></script>
     <script src="/static/js/plugins/chartjs.min.js"></script>
     <script src="/static/product.js"></script>
-    <script>
-
-    </script>
-    <script>
-
-    </script>
+    <script src="/static/js/main.js"></script>
+  
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->

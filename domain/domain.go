@@ -27,6 +27,10 @@ const (
 	FuelTypeHybrid   = "hybrid"
 	FuelTypeCng      = "cng"
 	FuelTypeElectric = "electric"
+
+	// category
+	CarCategoryPremium = "Premium"
+	CarCategoryMini    = "Mini"
 )
 
 type User struct {
@@ -39,19 +43,20 @@ type User struct {
 }
 
 type Vehicle struct {
-	ID        uint    `gorm:"primaryKey;autoIncrement"json:"id"`
-	Model     string  `json:"model"`
-	BrandID   uint    `json:"brand_id"`
-	Brand     Brand   `gorm:"foreignKey:BrandID" json:"brand"`
-	Year      int     `json:"year"`
-	Color     string  `json:"color"`
-	CarType   string  `json:"car_type"`
-	Images    []Image `gorm:"foreignKey:CarID;constraint:OnDelete:CASCADE"json:"images"`
-	FuelType  string  `json:"fuel_type"`
-	Variant   string  `json:"variant"`
-	Kms       int     `json:"kms"`
-	Ownership int     `json:"ownership"`
-
+	ID             uint      `gorm:"primaryKey;autoIncrement"json:"id"`
+	Model          string    `json:"model"`
+	BrandID        uint      `json:"brand_id"`
+	Brand          Brand     `gorm:"foreignKey:BrandID" json:"brand"`
+	Year           int       `json:"year"`
+	Category       string    `json:"category"`
+	Color          string    `json:"color"`
+	CarType        string    `json:"car_type"`
+	Images         []Image   `gorm:"foreignKey:CarID;constraint:OnDelete:CASCADE"json:"images"`
+	FuelType       string    `json:"fuel_type"`
+	Variant        string    `json:"variant"`
+	Kms            int       `json:"kms"`
+	Ownership      int       `json:"ownership"`
+	Vehicle_type   string    `json:"vehicle_type"`
 	Transmission   string    `json:"transmission"`
 	RegNo          string    `json:"regno"`
 	Status         string    `json:"status"`
