@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"ginapp/domain"
 	"ginapp/utils"
+	"math"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,6 +16,40 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
+
+func AddBrand(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var brands domain.Brand
+		brands.Name = c.PostForm("brand_name")
+
+		if err := db.Create(&brands).Error; err != nil {
+			c.Redirect(http.StatusSeeOther, "/admin/brand_view")
+
+		}
+		c.Redirect(http.StatusSeeOther, "/admin/brand_view")
+
+	}
+}
+
+func MiniCarsDelete(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var cars []domain.Vehicle
+
+		id := c.Param("id")
+
+		if err := db.First(&cars, id).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the cars"})
+			return
+		}
+
+		if err := db.Delete(&cars).Error; err != nil {
+			c.Redirect(http.StatusSeeOther, "/admin/MiniCars")
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/admin/MiniCars")
+	}
+}
 
 func PremiumCarsDelete(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -98,16 +133,54 @@ func BrandEdit(db *gorm.DB) gin.HandlerFunc {
 
 func BrandView(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var brands []domain.Brand
+		var (
+			brands     []domain.Brand
+			totalCount int64
+			page       int
+			limit      int
+			offset     int
+		)
+
+		page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
+
+		if page < 1 {
+			page = 1
+		}
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "5"))
+
+		offset = (page - 1) * limit
+
 		fmt.Println("here is the brands", brands)
 
-		if err := db.Find(&brands).Error; err != nil {
+		if err := db.Model(&domain.Brand{}).Count(&totalCount).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the count"})
+			return
+		}
+
+		if err := db.Order("created_at desc").Limit(limit).Offset(offset).Find(&brands).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch the brands"})
 
 			return
 		}
+		totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
+		pages := make([]int, totalPages)
 
-		c.HTML(http.StatusOK, "brand.html", gin.H{"brands": brands})
+		for i := range pages {
+
+			pages[i] = i + 1
+		}
+
+		noBrands := len(brands) == 0
+
+		c.HTML(http.StatusOK, "brand.html", gin.H{
+			"brands":     brands,
+			"totalCount": totalCount,
+			"Page":       page,
+			"noBrands":   noBrands,
+			"Limit":      limit,
+			"totalPages": totalPages,
+			"Pages":      pages,
+		})
 
 	}
 }
@@ -240,14 +313,32 @@ func EditCarMini(db *gorm.DB) gin.HandlerFunc {
 
 func MiniCars(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		fmt.Println("here is the mini cars come on")
 
 		var (
-			cars   []domain.Vehicle
-			brands []domain.Brand
+			cars       []domain.Vehicle
+			brands     []domain.Brand
+			totalCount int64
+			limit      int
+			offset     int
+			page       int
 		)
 
-		if err := db.Preload("Brand").Where("vehicle_type=?", "Mini").Find(&cars).Error; err != nil {
+		page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
+		if page < 1 {
+			page = 1
+		}
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "1"))
+
+		offset = (page - 1) * limit
+		if err := db.Preload("Brand").Order("created_at desc").Limit(limit).Offset(offset).Where("vehicle_type=?", "Mini").Find(&cars).Error; err != nil {
+			fmt.Println("jerandlnaskljd")
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch the cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&totalCount).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the vehicle"})
 			return
 		}
 
@@ -258,14 +349,31 @@ func MiniCars(db *gorm.DB) gin.HandlerFunc {
 				return
 
 			}
-			c.HTML(200, "MiniCars.html", gin.H{
-				"Cars":   cars,
-				"Brands": brands,
-			})
-
 		}
 
+		noCars := len(cars) == 0
+
+		totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
+		pages := make([]int, totalPages)
+
+		for i := range pages {
+			pages[i] = i + 1
+		}
+
+		c.HTML(200, "MiniCars.html", gin.H{
+			"Cars":       cars,
+			"Brands":     brands,
+			"NoCars":     noCars,
+			"Page":       page,
+			"Pages":      pages,
+			"totalPages": totalPages,
+			"Limit":      limit,
+			"totalCount": totalCount,
+			"Nocars":     noCars,
+		})
+
 	}
+
 }
 
 func EditCar(db *gorm.DB) gin.HandlerFunc {
@@ -593,7 +701,7 @@ func AddProduct(db *gorm.DB) gin.HandlerFunc {
 				return
 			}
 
-			c.Redirect(http.StatusSeeOther, "/admin/dashboard")
+			c.Redirect(http.StatusSeeOther, "/admin/product")
 
 		}
 
@@ -669,14 +777,31 @@ func AdminDashboard(c *gin.Context) {
 func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
-			cars   []domain.Vehicle
-			brands []domain.Brand
+			cars       []domain.Vehicle
+			brands     []domain.Brand
+			page       int
+			totalCount int64
+			limit      int
+			offset     int
 		)
 
-		if err := db.Preload("Brand").Where("vehicle_type = ?", "Premium").Find(&cars).Error; err != nil {
+		page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
+		if page < 1 {
+			page = 1
+		}
+
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "1"))
+
+		offset = (page - 1) * limit
+
+		if err := db.Preload("Brand").Order("created_at desc").Limit(limit).Offset(offset).Where("vehicle_type = ?", "Premium").Find(&cars).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch the cars"})
 			return
 
+		}
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&totalCount).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch the total count of premium cars"})
+			return
 		}
 
 		for i := range cars {
@@ -687,9 +812,24 @@ func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 			}
 		}
 
+		noCars := len(cars) == 0
+
+		totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
+		pages := make([]int, totalPages)
+
+		for i := range pages {
+			pages[i] = i + 1
+		}
+
 		c.HTML(200, "PremiumCars.html", gin.H{
-			"Cars":   cars,
-			"Brands": brands,
+			"Cars":       cars,
+			"Brands":     brands,
+			"Page":       page,
+			"Pages":      pages,
+			"totalPages": totalPages,
+			"Limit":      limit,
+			"totalCount": totalCount,
+			"NoCars":     noCars,
 		})
 	}
 

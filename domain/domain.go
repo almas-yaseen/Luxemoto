@@ -80,3 +80,13 @@ type Brand struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+type Enquiry struct {
+	ID           uint    `gorm:"primaryKey;autoIncrement"json:"id"`
+	CustomerName string  `json:"customer_name"`
+	Phone        string  `gorm:"not null"`
+	DesiredPrice float64 `gorm:"not null"`
+	DesiredCars  string  `gorm:"not null"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}

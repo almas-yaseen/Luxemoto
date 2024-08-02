@@ -5,6 +5,7 @@ import (
 	"ginapp/config"
 	"ginapp/database"
 	"ginapp/routes"
+	"text/template"
 
 	"log"
 	"net/http"
@@ -12,6 +13,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
+
+func add(x, y int) int {
+	return x + y
+}
+
+// Sub function to decrement index
+func sub(x, y int) int {
+	return x - y
+}
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -31,6 +41,8 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func main() {
+	// Add function to increment index
+
 	password := "luxemoto@123"
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -52,6 +64,10 @@ func main() {
 
 	log.Println("Database connection successful!")
 	router := gin.Default()
+	router.SetFuncMap(template.FuncMap{
+		"add": add,
+		"sub": sub,
+	})
 	router.Use(CORSMiddleware())
 
 	router.LoadHTMLGlob("templates/*.html")

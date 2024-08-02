@@ -18,6 +18,7 @@ func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 		admin.GET("/dashboard", handlers.AdminDashboard)
 		admin.GET("/product", handlers.ProductPage(db))
 		admin.GET("/PremiumCars", handlers.PremiumCars(db))
+		admin.GET("/enquiry", handlers.Enquiry(db))
 		admin.GET("/MiniCars", handlers.MiniCars(db))
 		admin.GET("/edit_page_premium/:id", handlers.EditPage(db))
 		admin.GET("/edit_page_mini/:id", handlers.EditPageMini(db))
@@ -29,6 +30,8 @@ func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 		admin.POST("/delete_brand/:id", handlers.BrandDelete(db))
 		admin.POST("/edit_page_mini/:id", handlers.EditCarMini(db))
 		admin.POST("/premium_cars/:id", handlers.PremiumCarsDelete(db))
+		admin.POST("/mini_cars/:id", handlers.MiniCarsDelete(db))
+		admin.POST("/add_brand", handlers.AddBrand(db))
 
 	}
 

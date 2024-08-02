@@ -68,29 +68,23 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link  " href="/pages/tables.html">
-            <div
-              class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-              <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink">
+          <a class="nav-link  " href="/admin/brand_view">
+            <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <title>office</title>
                 <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                   <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
                     <g transform="translate(1716.000000, 291.000000)">
                       <g id="office" transform="translate(153.000000, 2.000000)">
-                        <path class="color-background opacity-6"
-                          d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z">
-                        </path>
-                        <path class="color-background"
-                          d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z">
-                        </path>
+                        <path class="color-background opacity-6" d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z"></path>
+                        <path class="color-background" d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z"></path>
                       </g>
                     </g>
                   </g>
                 </g>
               </svg>
             </div>
-            <span class="nav-link-text ms-1">Tables</span>
+            <span class="nav-link-text ms-1">View Brands</span>
           </a>
         </li>
         <li class="nav-item">
@@ -570,6 +564,21 @@
           </div>
         </div>
       </div>
+      <div>
+        {{if .NoCars}}
+        <div class="text-center">
+          <br>
+          <br>
+          <p><strong>No premium cars are currently available</strong></p>
+          </div>
+        </div>
+        <div class="text-center">
+          <a href="/admin/product" class="btn btn-primary">Add Premium Cars</a>
+        </div>
+
+      </div>
+
+      {{else}}
 
 
 
@@ -633,8 +642,9 @@
               <td>{{.Insurance_date}}</td>
               <td>{{.Location}}</td>
               <td>
-                <a class="btn btn-sm btn-primary" href="/admin/edit_page_premium/{{.ID}}">Edit</a>
-                <a class="btn btn-sm btn-danger" href="#" data-toggle="modal" data-target="#deleteCarModal-{{.ID}}">Delete</a>
+                <a class="btn btn-sm btn-success" href="/admin/edit_page_premium/{{.ID}}">Edit</a>
+                <a class="btn btn-sm btn-danger" href="#" data-toggle="modal"
+                  data-target="#deleteCarModal-{{.ID}}">Delete</a>
               </td>
             </tr>
 
@@ -642,74 +652,97 @@
 
           </tbody>
         </table>
+       
 
       </div>
-    
-  {{range .Cars}}
-  <!-- Modal -->
-  <div id="deleteCarModal-{{.ID}}" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <form id="deleteForm-{{.ID}}" action="/admin/premium_cars/{{.ID}}" method="post">
-          <div class="modal-header">
-            <h4 class="modal-title">Delete Car</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          </div>
-          <div class="modal-body">
-            <p>Are you sure you want to delete the record of <strong>{{.Brand.Name}}</strong>?</p>
-            <p class="text-warning"><small>This action cannot be undone.</small></p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-danger">Delete</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  {{end}}
-</div>
+      {{end}}
 
-
-
-
-
-
-      <footer class="footer pt-3  ">
-        <div class="container-fluid">
-          <div class="row align-items-center justify-content-lg-between">
-            <div class="col-lg-6 mb-lg-0 mb-4">
-              <div class="copyright text-center text-sm text-muted text-lg-start">
-                ©
-                <script>
-                  document.write(new Date().getFullYear())
-                </script>,
-                made with <i class="fa fa-heart"></i> by
-                <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">Creative Tim</a>
-                for a better web.
+      {{range .Cars}}
+      <!-- Modal -->
+      <div id="deleteCarModal-{{.ID}}" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <form id="deleteForm-{{.ID}}" action="/admin/premium_cars/{{.ID}}" method="post">
+              <div class="modal-header">
+                <h4 class="modal-title">Delete Car</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               </div>
-            </div>
-            <div class="col-lg-6">
-              <ul class="nav nav-footer justify-content-center justify-content-lg-end">
-                <li class="nav-item">
-                  <a href="https://www.creative-tim.com" class="nav-link text-muted" target="_blank">Creative Tim</a>
-                </li>
-                <li class="nav-item">
-                  <a href="https://www.creative-tim.com/presentation" class="nav-link text-muted" target="_blank">About
-                    Us</a>
-                </li>
-                <li class="nav-item">
-                  <a href="https://www.creative-tim.com/blog" class="nav-link text-muted" target="_blank">Blog</a>
-                </li>
-                <li class="nav-item">
-                  <a href="https://www.creative-tim.com/license" class="nav-link pe-0 text-muted"
-                    target="_blank">License</a>
-                </li>
-              </ul>
-            </div>
+              <div class="modal-body">
+                <p>Are you sure you want to delete the record of <strong>{{.Brand.Name}}</strong>?</p>
+                <p class="text-warning"><small>This action cannot be undone.</small></p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </div>
+            </form>
           </div>
         </div>
-      </footer>
+      </div>
+      {{end}}
+    </div>
+    <div class="row justify-content-center ml-5">
+      <nav aria-label="Page navigation">
+          <ul class="pagination">
+              <!-- Previous Page Link -->
+              <li class="page-item {{if eq .Page 1}}disabled{{end}}">
+                  <a href="?page={{sub .Page 1}}&limit={{.Limit}}" class="page-link">prev</a>
+              </li>
+              {{range $i, $page := .Pages}}
+              <li class="page-item {{if eq $.Page $page}}active{{end}}">
+                  <a href="?page={{$page}}&limit={{$.Limit}}" class="page-link">{{$page}}</a>
+              </li>
+              {{end}}
+              <!-- Next Page Link -->
+              <li class="page-item {{if eq .Page .totalPages}}disabled{{end}}">
+                  <a href="?page={{add .Page 1}}&limit={{.Limit}}" class="page-link">next</a>
+              </li>
+          </ul>
+      </nav>
+  </div>
+  <div class="hint-text ml-5">Showing <b>{{len .Brands}}</b> out of <b>{{.totalCount}}</b> entries</div>
+
+
+
+
+
+
+
+    <footer class="footer pt-3  ">
+      <div class="container-fluid">
+        <div class="row align-items-center justify-content-lg-between">
+          <div class="col-lg-6 mb-lg-0 mb-4">
+            <div class="copyright text-center text-sm text-muted text-lg-start">
+              ©
+              <script>
+                document.write(new Date().getFullYear())
+              </script>,
+              made with <i class="fa fa-heart"></i> by
+              <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">Creative Tim</a>
+              for a better web.
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <ul class="nav nav-footer justify-content-center justify-content-lg-end">
+              <li class="nav-item">
+                <a href="https://www.creative-tim.com" class="nav-link text-muted" target="_blank">Creative Tim</a>
+              </li>
+              <li class="nav-item">
+                <a href="https://www.creative-tim.com/presentation" class="nav-link text-muted" target="_blank">About
+                  Us</a>
+              </li>
+              <li class="nav-item">
+                <a href="https://www.creative-tim.com/blog" class="nav-link text-muted" target="_blank">Blog</a>
+              </li>
+              <li class="nav-item">
+                <a href="https://www.creative-tim.com/license" class="nav-link pe-0 text-muted"
+                  target="_blank">License</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
     </div>
   </main>
   <div class="fixed-plugin">
@@ -975,10 +1008,10 @@
   <!-- Github buttons -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-   <!-- Include Bootstrap JS, jQuery, and Popper.js -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <!-- Include Bootstrap JS, jQuery, and Popper.js -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script src="/static/js/soft-ui-dashboard.min.js?v=1.0.7"></script>
 </body>
 
