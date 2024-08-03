@@ -630,11 +630,41 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="form-group">
-                                        <label for="newBrandName">Brand Name</label>
-                                        <input type="text" placeholder="Enter brand name" name="brand_name"
+                                        <label for="newBrandName">Customer Name</label>
+                                        <input type="text" placeholder="Enter customer name" name="customer_name"
                                             class="form-control" id="newBrandName" required>
                                     </div>
                                 </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="newBrandName">Phone</label>
+                                        <input type="no" placeholder="Enter  Phone number" name="phone_number"
+                                            class="form-control" id="newBrandName" required>
+                                    </div>
+                                </div>
+
+
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="newBrandName">Desired price</label>
+                                        <input type="price" placeholder="Enter  the price" name="price"
+                                            class="form-control" id="newBrandName" required>
+                                    </div>
+                                </div>
+
+
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="newBrandName">Desired car</label>
+                                        <input type="text" placeholder="Enter the car" name="car" class="form-control"
+                                            id="newBrandName" required>
+                                    </div>
+                                </div>
+
+
+
+
+
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                     <button type="submit" class="btn btn-primary">Add Brand</button>
@@ -669,16 +699,20 @@
                         <thead>
                             <tr>
                                 <th scope="col">ID</th>
-                                <th scope="col">Brand</th>
-                                <th scope="col">Actions</th>
+                                <th scope="col">Customer Name</th>
+                                <th scope="col">Phone</th>
+                                <th>Desired Price</th>
+                                <th>Desired Cars</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {{range $index,$brand := .brands}}
+                            {{range $index,$brand := .enquries}}
                             <tr>
                                 <th scope="row">{{$index | add 1}}</th>
-                                <td>{{.Name}}</td>
-
+                                <td>{{.CustomerName}}</td>
+                                <td>{{.Phone}}</td>
+                                <td>{{.DesiredPrice}}</td>
+                                <td>{{.DesiredCars}}</td>
                                 <td>
                                     <!-- Edit Button -->
                                     <button class="btn btn-primary btn-sm" data-toggle="modal"
@@ -720,9 +754,27 @@
                                 <form action="/admin/brand_edit/{{$brand.ID}}" method="post">
 
                                     <div class="form-group">
-                                        <label for="itemBrand{{$brand.ID}}">Brand</label>
-                                        <input type="text" placeholder="eg:benz,bmw" name="brand_name"
-                                            value="{{$brand.Name}}" class="form-control" id="itemBrand">
+                                        <label for="itemBrand{{$brand.ID}}">CustomerName</label>
+                                        <input type="text" placeholder="eg:john,doe" name="customer_name"
+                                            value="{{$brand.CustomerName}}" class="form-control" id="itemBrand">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="itemBrand{{$brand.ID}}">Phone</label>
+                                        <input type="text" placeholder="eg:+9190371,0484" name="phone_number"
+                                            value="{{$brand.Phone}}" class="form-control" id="itemBrand">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="itemBrand{{$brand.DesiredPrice}}">Price</label>
+                                        <input type="text" placeholder="eg:1200,2300" name="price"
+                                            value="{{$brand.DesiredPrice}}" class="form-control" id="itemBrand">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="itemBrand{{$brand.DesiredCars}}">cars</label>
+                                        <input type="text" placeholder="eg:bmw,benz" name="cars"
+                                            value="{{$brand.DesiredCars}}" class="form-control" id="itemBrand">
                                     </div>
 
                             </div>
@@ -776,33 +828,6 @@
 
 
     </main>
-
-
-    </div>
-    <div class="row justify-content-center ml-5">
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                <!-- Previous Page Link -->
-                <li class="page-item {{if eq .Page 1}}disabled{{end}}">
-                    <a href="?page={{sub .Page 1}}&limit={{.Limit}}" class="page-link">prev</a>
-                </li>
-                {{range $i, $page := .Pages}}
-                <li class="page-item {{if eq $.Page $page}}active{{end}}">
-                    <a href="?page={{$page}}&limit={{$.Limit}}" class="page-link">{{$page}}</a>
-                </li>
-                {{end}}
-                <!-- Next Page Link -->
-                <li class="page-item {{if eq .Page .totalPages}}disabled{{end}}">
-                    <a href="?page={{add .Page 1}}&limit={{.Limit}}" class="page-link">next</a>
-                </li>
-            </ul>
-        </nav>
-        <div class="hint-text ml-5">Showing <b>{{len .brands}}</b> out of <b>{{.totalCount}}</b> entries</div>
-
-
-        </main>
-
-
 
 
     </div>

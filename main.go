@@ -69,7 +69,6 @@ func main() {
 		"sub": sub,
 	})
 	router.Use(CORSMiddleware())
-
 	router.LoadHTMLGlob("templates/*.html")
 
 	// tmpl := template.Must(template.New("").ParseFiles(files...))

@@ -17,6 +17,20 @@ import (
 	"gorm.io/gorm"
 )
 
+func Enquiry(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var enquires []domain.Enquiry
+
+		if err := db.Find(&enquires).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get the data"})
+			return
+		}
+
+		fmt.Println("HERE IS THE QNUER", enquires)
+		c.HTML(http.StatusOK, "enquiry.html", gin.H{"enquries": enquires})
+
+	}
+}
 func AddBrand(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
