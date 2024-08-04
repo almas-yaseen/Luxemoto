@@ -17,6 +17,26 @@ import (
 	"gorm.io/gorm"
 )
 
+func DeleteEnquiry(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		id := c.Param("id")
+		var enquiry domain.Enquiry
+		fmt.Println("here is the address value", &enquiry)
+		if err := db.First(&enquiry, id).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get the id"})
+			return
+		}
+
+		if err := db.Delete(&enquiry).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch the database"})
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/admin/enquiry")
+
+	}
+}
+
 func EditEnquiry(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
