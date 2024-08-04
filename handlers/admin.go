@@ -17,17 +17,95 @@ import (
 	"gorm.io/gorm"
 )
 
-func Enquiry(db *gorm.DB) gin.HandlerFunc {
+func EditEnquiry(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var enquires []domain.Enquiry
+		id := c.Param("id")
 
-		if err := db.Find(&enquires).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get the data"})
+		var enquiry domain.Enquiry
+
+		if err := db.First(&enquiry, id).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find the id"})
 			return
 		}
 
+		enquiry.CustomerName = c.PostForm("customer_name")
+		enquiry.Phone, _ = strconv.Atoi(c.PostForm("phone"))
+		enquiry.DesiredPrice, _ = strconv.Atoi(c.PostForm("price"))
+		enquiry.DesiredCars = c.PostForm("cars")
+
+		if err := db.Order("created_at desc").Save(&enquiry).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save the database"})
+			return
+		}
+		fmt.Println("here is the saved enquiry", enquiry)
+
+		c.Redirect(http.StatusSeeOther, "/admin/enquiry")
+
+	}
+}
+
+func AddCustomer(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var Customer domain.Enquiry
+
+		Customer.CustomerName = c.PostForm("customer_name")
+		Customer.Phone, _ = strconv.Atoi(c.PostForm("phone"))
+		Customer.DesiredPrice, _ = strconv.Atoi(c.PostForm("price"))
+		Customer.DesiredCars = c.PostForm("cars")
+		if err := db.Create(&Customer).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create the car"})
+			return
+		}
+
+		c.Redirect(http.StatusSeeOther, "/admin/enquiry")
+
+	}
+}
+
+func Enquiry(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			enquires   []domain.Enquiry
+			page       int
+			limit      int
+			offset     int
+			totalCount int64
+		)
+
+		page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
+		if page < 1 {
+			page = 1
+		}
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "1"))
+		offset = (page - 1) * limit
+
+		if err := db.Model(&domain.Enquiry{}).Count(&totalCount).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get the count"})
+		}
+		if err := db.Order("created_at desc").Limit(limit).Offset(offset).Find(&enquires).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get the data"})
+			return
+		}
+		fmt.Println("here is the totalcount", totalCount)
+		totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
+		pages := make([]int, totalPages)
+
+		for i := range pages {
+			pages[i] = i + 1
+
+		}
+
 		fmt.Println("HERE IS THE QNUER", enquires)
-		c.HTML(http.StatusOK, "enquiry.html", gin.H{"enquries": enquires})
+		c.HTML(http.StatusOK, "enquiry.html", gin.H{
+
+			"enquries":   enquires,
+			"Page":       page,
+			"Pages":      pages,
+			"Limit":      limit,
+			"totalCount": totalCount,
+			"totalPages": totalPages,
+		})
 
 	}
 }

@@ -3130,11 +3130,11 @@ textarea.form-control-lg {
 }
 
 .form-range:focus::-webkit-slider-thumb {
-  box-shadow: 0 0 0 1px #fff, 0 0 0 2px #e9aede;
+  box-shadow: 0 0 0 1px #fff, 0 0 0 2px green;
 }
 
 .form-range:focus::-moz-range-thumb {
-  box-shadow: 0 0 0 1px #fff, 0 0 0 2px #e9aede;
+  box-shadow: 0 0 0 1px #fff, 0 0 0 2px green;
 }
 
 .form-range::-moz-focus-outer {
@@ -3145,7 +3145,7 @@ textarea.form-control-lg {
   width: 1rem;
   height: 1rem;
   margin-top: -0.25rem;
-  background-color: #cb0c9f;
+  background-color: green;
   border: 0;
   border-radius: 1rem;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -3159,7 +3159,7 @@ textarea.form-control-lg {
 }
 
 .form-range::-webkit-slider-thumb:active {
-  background-color: #f891e1;
+  background-color: green;
 }
 
 .form-range::-webkit-slider-runnable-track {
@@ -3175,7 +3175,7 @@ textarea.form-control-lg {
 .form-range::-moz-range-thumb {
   width: 1rem;
   height: 1rem;
-  background-color: #cb0c9f;
+  background-color: green;
   border: 0;
   border-radius: 1rem;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -3189,7 +3189,7 @@ textarea.form-control-lg {
 }
 
 .form-range::-moz-range-thumb:active {
-  background-color: #f891e1;
+  background-color: green;
 }
 
 .form-range::-moz-range-track {

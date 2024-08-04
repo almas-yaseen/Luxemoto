@@ -621,9 +621,9 @@
                     aria-labelledby="addBrandModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
-                            <form action="/admin/add_brand" method="post">
+                            <form action="/admin/add_customers" method="post">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="addBrandModalLabel">Add Brand</h5>
+                                    <h5 class="modal-title" id="addBrandModalLabel">Add Enquiry</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
@@ -638,7 +638,7 @@
                                 <div class="modal-body">
                                     <div class="form-group">
                                         <label for="newBrandName">Phone</label>
-                                        <input type="no" placeholder="Enter  Phone number" name="phone_number"
+                                        <input type="no" placeholder="Enter  Phone number" name="phone"
                                             class="form-control" id="newBrandName" required>
                                     </div>
                                 </div>
@@ -656,7 +656,7 @@
                                 <div class="modal-body">
                                     <div class="form-group">
                                         <label for="newBrandName">Desired car</label>
-                                        <input type="text" placeholder="Enter the car" name="car" class="form-control"
+                                        <input type="text" placeholder="Enter the car" name="cars" class="form-control"
                                             id="newBrandName" required>
                                     </div>
                                 </div>
@@ -667,7 +667,7 @@
 
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn btn-primary">Add Brand</button>
+                                    <button type="submit" class="btn btn-primary">Add Customer</button>
                                 </div>
                             </form>
                         </div>
@@ -678,11 +678,11 @@
                 <div class="row">
                     <div class="col-9">
                         <div class="content-header">
-                            <h2 class="content-title">Add New Brand</h2>
+                            <h2 class="content-title">Add Enquiry</h2>
                             <div>
 
                                 <button class="btn btn-md btn-primary" data-toggle="modal"
-                                    data-target="#addBrandModal">Add Brand</button>
+                                    data-target="#addBrandModal">Add Enquiry</button>
                             </div>
 
                         </div>
@@ -751,7 +751,7 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="/admin/brand_edit/{{$brand.ID}}" method="post">
+                                <form action="/admin/edit_enquiry/{{$brand.ID}}" method="post">
 
                                     <div class="form-group">
                                         <label for="itemBrand{{$brand.ID}}">CustomerName</label>
@@ -761,7 +761,7 @@
 
                                     <div class="form-group">
                                         <label for="itemBrand{{$brand.ID}}">Phone</label>
-                                        <input type="text" placeholder="eg:+9190371,0484" name="phone_number"
+                                        <input type="text" placeholder="eg:+9190371,0484" name="phone"
                                             value="{{$brand.Phone}}" class="form-control" id="itemBrand">
                                     </div>
 
@@ -831,6 +831,43 @@
 
 
     </div>
+    <div class="row justify-content-center ml-5">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <!-- Previous Page Link -->
+                <li class="page-item {{if eq .Page 1}}disabled{{end}}">
+                    <a href="?page={{sub .Page 1}}&limit={{.Limit}}" class="page-link">prev</a>
+                </li>
+                {{range $i, $page := .Pages}}
+                <li class="page-item {{if eq $.Page $page}}active{{end}}">
+                    <a href="?page={{$page}}&limit={{$.Limit}}" class="page-link">{{$page}}</a>
+                </li>
+                {{end}}
+                <!-- Next Page Link -->
+                <li class="page-item {{if eq .Page .totalPages}}disabled{{end}}">
+                    <a href="?page={{add .Page 1}}&limit={{.Limit}}" class="page-link">next</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="hint-text ml-5">Showing <b>{{len .enquries}}</b> out of <b>{{.totalCount}}</b> entries</div>
+
+
+        </main>
+
+
+
+
+    </div>
+
+
+    
+    
+    
+
+
+
+
+
 
 
 

@@ -19,7 +19,8 @@ func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 		admin.GET("/product", handlers.ProductPage(db))
 		admin.GET("/PremiumCars", handlers.PremiumCars(db))
 		admin.GET("/enquiry", handlers.Enquiry(db))
-
+		admin.POST("/edit_enquiry/:id", handlers.EditEnquiry(db))
+		admin.POST("/add_customers", handlers.AddCustomer(db))
 		admin.GET("/MiniCars", handlers.MiniCars(db))
 		admin.GET("/edit_page_premium/:id", handlers.EditPage(db))
 		admin.GET("/edit_page_mini/:id", handlers.EditPageMini(db))

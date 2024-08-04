@@ -82,11 +82,11 @@ type Brand struct {
 }
 
 type Enquiry struct {
-	ID           uint    `gorm:"primaryKey;autoIncrement"json:"id"`
-	CustomerName string  `json:"customer_name"`
-	Phone        int     `gorm:"not null"`
-	DesiredPrice float64 `gorm:"not null"`
-	DesiredCars  string  `gorm:"not null"`
+	ID           uint   `gorm:"primaryKey;autoIncrement"json:"id"`
+	CustomerName string `json:"customer_name"`
+	Phone        int    `gorm:"not null"`
+	DesiredPrice int    `gorm:"not null"`
+	DesiredCars  string `gorm:"not null"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
