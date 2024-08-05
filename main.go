@@ -74,9 +74,15 @@ func main() {
 	// tmpl := template.Must(template.New("").ParseFiles(files...))
 
 	// router.SetHTMLTemplate(tmpl)
-	adminGroup := router.Group("/admin")
 
+	//admin routes
+	adminGroup := router.Group("/admin")
 	routes.AdminRoutes(adminGroup, db)
+
+	//user routes
+
+	userGroup := router.Group("/myapp")
+	routes.UserRoutes(userGroup, db)
 
 	router.Static("/static", "./static")
 	router.Static("/uploads", "./uploads")
