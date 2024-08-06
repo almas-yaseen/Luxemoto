@@ -90,3 +90,17 @@ type Enquiry struct {
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
+
+type CustomerImage struct {
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	ID        uint   `json:"id"`
+	Path      string `json:"path"`
+}
+
+type YoutubeLink struct {
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint      `json:"id"`
+	VideoLink string    `json:"video_links"`
+}
