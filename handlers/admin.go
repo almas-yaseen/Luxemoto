@@ -17,6 +17,33 @@ import (
 	"gorm.io/gorm"
 )
 
+func YoutubePageDelete(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+	}
+}
+
+func YoutubePageEdit(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		var youtubelink domain.YoutubeLink
+
+		if err := db.First(&youtubelink, id).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the youtube id"})
+			return
+		}
+
+		youtubelink.VideoLink = c.PostForm("link")
+
+		if err := db.Save(&youtubelink).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update the car"})
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/admin/youtube_page")
+
+	}
+}
+
 func YoutubePage(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
@@ -37,12 +64,29 @@ func YoutubePage(db *gorm.DB) gin.HandlerFunc {
 
 		offset = (page - 1) * limit
 
-		if err := db.Order("")
+		if err := db.Model(&domain.YoutubeLink{}).Count(&totalCount).Error; err != nil {
+			c.JSON(http.StatusInsufficientStorage, gin.H{"error": "failed to the count"})
+		}
 
+		if err := db.Order("created_at desc").Limit(limit).Offset(offset).Find(&youtubelink).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed find the youtube link"})
+		}
+		totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
+		pages := make([]int, totalPages)
+		fmt.Println("here is the youtubelink", youtubelink)
 
+		for i := range pages {
+			pages[i] = i + 1
+		}
 
-
-		c.HTML(http.StatusOK, "youtube.html", gin.H{})
+		c.HTML(http.StatusOK, "youtube.html", gin.H{
+			"Pages":      pages,
+			"Limit":      limit,
+			"totalCount": totalCount,
+			"totalPages": totalPages,
+			"Page":       page,
+			"enquries":   youtubelink,
+		})
 
 	}
 }

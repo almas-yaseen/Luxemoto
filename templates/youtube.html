@@ -744,20 +744,16 @@
                         <thead>
                             <tr>
                                 <th scope="col">ID</th>
-                                <th scope="col">Customer Name</th>
-                                <th scope="col">Phone</th>
-                                <th>Desired Price</th>
-                                <th>Desired Cars</th>
+                                <th scope="col">Video Link</th>
+                               
                             </tr>
                         </thead>
                         <tbody>
                             {{range $index,$brand := .enquries}}
                             <tr>
                                 <th scope="row">{{$index | add 1}}</th>
-                                <td>{{.CustomerName}}</td>
-                                <td>{{.Phone}}</td>
-                                <td>{{.DesiredPrice}}</td>
-                                <td>{{.DesiredCars}}</td>
+                                <td>{{ $brand.VideoLink}}</td>
+                            
                                 <td>
                                     <!-- Edit Button -->
                                     <button class="btn btn-primary btn-sm" data-toggle="modal"
@@ -796,31 +792,15 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="/admin/edit_enquiry/{{$brand.ID}}" method="post">
+                                <form action="/admin/youtube_page_edit/{{$brand.ID}}" method="post">
 
                                     <div class="form-group">
-                                        <label for="itemBrand{{$brand.ID}}">CustomerName</label>
-                                        <input type="text" placeholder="eg:john,doe" name="customer_name"
-                                            value="{{$brand.CustomerName}}" class="form-control" id="itemBrand">
+                                        <label for="itemBrand{{$brand.ID}}">VideoLinks</label>
+                                        <input type="text" placeholder="eg:https://www.google.com,htt" name="link"
+                                            value="{{$brand.VideoLink}}" class="form-control" id="itemBrand">
                                     </div>
 
-                                    <div class="form-group">
-                                        <label for="itemBrand{{$brand.ID}}">Phone</label>
-                                        <input type="text" placeholder="eg:+9190371,0484" name="phone"
-                                            value="{{$brand.Phone}}" class="form-control" id="itemBrand">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="itemBrand{{$brand.DesiredPrice}}">Price</label>
-                                        <input type="text" placeholder="eg:1200,2300" name="price"
-                                            value="{{$brand.DesiredPrice}}" class="form-control" id="itemBrand">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="itemBrand{{$brand.DesiredCars}}">cars</label>
-                                        <input type="text" placeholder="eg:bmw,benz" name="cars"
-                                            value="{{$brand.DesiredCars}}" class="form-control" id="itemBrand">
-                                    </div>
+                                    
 
                             </div>
                             <div class="modal-footer">
