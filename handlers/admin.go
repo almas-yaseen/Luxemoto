@@ -17,6 +17,36 @@ import (
 	"gorm.io/gorm"
 )
 
+func YoutubePage(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var (
+			youtubelink []domain.YoutubeLink
+			page        int
+			limit       int
+			offset      int
+			totalCount  int64
+		)
+		page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
+
+		if page < 1 {
+			page = 1
+		}
+
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "5"))
+
+		offset = (page - 1) * limit
+
+		if err := db.Order("")
+
+
+
+
+		c.HTML(http.StatusOK, "youtube.html", gin.H{})
+
+	}
+}
+
 func DeleteEnquiry(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 

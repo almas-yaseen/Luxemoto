@@ -22,7 +22,7 @@
     <!-- CSS Files -->
     <link id="pagestyle" href="/static/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
     <style>
-              #imagePreview {
+        #imagePreview {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             /* 3 columns with equal width */
@@ -119,7 +119,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link  " href="/pages/tables.html">
+                    <a class="nav-link  " href="/admin/brand_view">
                         <div
                             class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                             <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1"
@@ -142,7 +142,7 @@
                                 </g>
                             </svg>
                         </div>
-                        <span class="nav-link-text ms-1">Tables</span>
+                        <span class="nav-link-text ms-1"><strong>View Brands</strong></span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -169,7 +169,7 @@
                                 </g>
                             </svg>
                         </div>
-                        <span class="nav-link-text ms-1">Luxemoto mini</span>
+                        <span class="nav-link-text ms-1"><strong>Luxemoto mini</strong></span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -196,7 +196,34 @@
                                 </g>
                             </svg>
                         </div>
-                        <span class="nav-link-text ms-1">Luxemoto premium</span>
+                        <span class="nav-link-text ms-1"><strong>Luxemoto premium</strong></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link  " href="/admin/enquiry">
+                        <div
+                            class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <svg width="12px" height="12px" viewBox="0 0 43 36" version="1.1"
+                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                <title>credit-card</title>
+                                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                    <g transform="translate(-2169.000000, -745.000000)" fill="#FFFFFF"
+                                        fill-rule="nonzero">
+                                        <g transform="translate(1716.000000, 291.000000)">
+                                            <g transform="translate(453.000000, 454.000000)">
+                                                <path class="color-background opacity-6"
+                                                    d="M43,10.7482083 L43,3.58333333 C43,1.60354167 41.3964583,0 39.4166667,0 L3.58333333,0 C1.60354167,0 0,1.60354167 0,3.58333333 L0,10.7482083 L43,10.7482083 Z">
+                                                </path>
+                                                <path class="color-background"
+                                                    d="M0,16.125 L0,32.25 C0,34.2297917 1.60354167,35.8333333 3.58333333,35.8333333 L39.4166667,35.8333333 C41.3964583,35.8333333 43,34.2297917 43,32.25 L43,16.125 L0,16.125 Z M19.7083333,26.875 L7.16666667,26.875 L7.16666667,23.2916667 L19.7083333,23.2916667 L19.7083333,26.875 Z M35.8333333,26.875 L28.6666667,26.875 L28.6666667,23.2916667 L35.8333333,23.2916667 L35.8333333,26.875 Z">
+                                                </path>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </g>
+                            </svg>
+                        </div>
+                        <span class="nav-link-text ms-1"><strong>Enquired customers</strong></span>
                     </a>
                 </li>
 
@@ -205,8 +232,23 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <li class="nav-item">
-                    <a class="nav-link  " href="/admin/products">
+                    <a class="nav-link  " href="/admin/product">
                         <div
                             class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                             <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1"
@@ -232,8 +274,11 @@
                                 </g>
                             </svg>
                         </div>
-                        <span class="nav-link-text ms-1"> Add Products</span>
+                        <span class="nav-link-text ms-1"><strong>Add Products</strong></span>
+
+
                     </a>
+                </li>
                 <li class="nav-item">
                     <form action="/admin/logout" method="POST">
                         <button type="submit" class="btn btn-danger btn-sm">
@@ -659,8 +704,8 @@
                                 </div>
                                 <div class="card-body">
                                     <!-- /admin/postadd-product -->
-                                    <form action="/admin/edit_page_mini/{{.Car.ID}}" method="post" enctype="multipart/form-data"
-                                        id="productForm">
+                                    <form action="/admin/edit_page_mini/{{.Car.ID}}" method="post"
+                                        enctype="multipart/form-data" id="productForm">
 
 
                                         <div class="row">
@@ -681,7 +726,8 @@
 
 
                                                             {{range .Brands}}
-                                                            <option value="{{.ID}}" {{if eq .ID $.Car.BrandID}}selected{{end}}>{{.Name}}</option>
+                                                            <option value="{{.ID}}" {{if eq .ID
+                                                                $.Car.BrandID}}selected{{end}}>{{.Name}}</option>
                                                             {{end}}
                                                         </select>
                                                     </div>
@@ -690,8 +736,8 @@
                                             <div class="col-lg-4">
                                                 <div class="mb-4">
                                                     <label class="form-label">Year</label>
-                                                    <input placeholder="year" value="{{.Car.Year}}" type="text" class="form-control" id="year"
-                                                        name="year" required>
+                                                    <input placeholder="year" value="{{.Car.Year}}" type="text"
+                                                        class="form-control" id="year" name="year" required>
                                                 </div>
                                             </div>
 
@@ -722,13 +768,15 @@
                                             <div class="col-lg-4">
                                                 <div class="mb-4">
                                                     <label>Fuel Type</label>
-                                                    <select name="fuel_type" id="fuel_type" class="form-control" required>
-{{range .fuel_types}}
+                                                    <select name="fuel_type" id="fuel_type" class="form-control"
+                                                        required>
+                                                        {{range .fuel_types}}
 
-<option value="{{.}}" {{if eq . $.Car.FuelType}} selected {{end}}>{{.}}</option>
-{{end}}
+                                                        <option value="{{.}}" {{if eq . $.Car.FuelType}} selected
+                                                            {{end}}>{{.}}</option>
+                                                        {{end}}
 
-                                                    </select>       
+                                                    </select>
                                                 </div>
                                             </div>
 
@@ -742,7 +790,8 @@
                                                     <label class="form-label">Variant</label>
                                                     <div class="row gx-2">
                                                         <input placeholder="variant" type="text" class="form-control"
-                                                            id="variant" value="{{.Car.Variant}}" name="variant" required>
+                                                            id="variant" value="{{.Car.Variant}}" name="variant"
+                                                            required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -759,7 +808,8 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Ownership</label>
                                                     <input placeholder="Ownership" type="text" class="form-control"
-                                                        id="ownership" value="{{.Car.Ownership}}" name="ownership" required>
+                                                        id="ownership" value="{{.Car.Ownership}}" name="ownership"
+                                                        required>
                                                 </div>
                                             </div>
 
@@ -771,8 +821,8 @@
                                                     <label class="form-label">Transmission</label>
                                                     <div class="row gx-2">
                                                         <input placeholder="transmission" type="text"
-                                                            class="form-control" value="{{.Car.Transmission}}" id="transmission" name="transmission"
-                                                            required>
+                                                            class="form-control" value="{{.Car.Transmission}}"
+                                                            id="transmission" name="transmission" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -798,8 +848,10 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Status</label>
                                                     <select name="status" class="form-control" required>
-                                  <option value="sold" {{if eq .Car.Status "sold" }}selected {{end}}>Sold</option>
-                                  <option value="available" {{if eq .Car.Status "available" }}selected {{end}}>Available</option>
+                                                        <option value="sold" {{if eq .Car.Status "sold" }}selected
+                                                            {{end}}>Sold</option>
+                                                        <option value="available" {{if eq .Car.Status "available"
+                                                            }}selected {{end}}>Available</option>
 
                                                     </select>
 
@@ -810,8 +862,9 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Engine size</label>
                                                     <div class="row gx-2">
-                                                        <input placeholder="Engine size" type="text" class="form-control"
-                                                            id="price" value="{{.Car.Engine_size}}" name="engine_size" required>
+                                                        <input placeholder="Engine size" type="text"
+                                                            class="form-control" id="price" value="{{.Car.Engine_size}}"
+                                                            name="engine_size" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -819,8 +872,10 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Insurance date</label>
                                                     <div class="row gx-2">
-                                                        <input placeholder="Insurance date" type="text" class="form-control"
-                                                            id="price" value="{{.Car.Insurance_date}}" name="insurance_date" required>
+                                                        <input placeholder="Insurance date" type="text"
+                                                            class="form-control" id="price"
+                                                            value="{{.Car.Insurance_date}}" name="insurance_date"
+                                                            required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -829,7 +884,8 @@
                                                     <label class="form-label">Location</label>
                                                     <div class="row gx-2">
                                                         <input placeholder="Location" type="text" class="form-control"
-                                                            id="price" value="{{.Car.Location}}" name="location" required>
+                                                            id="price" value="{{.Car.Location}}" name="location"
+                                                            required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -838,7 +894,8 @@
                                                     <label class="form-label">Location</label>
                                                     <div class="row gx-2">
                                                         <input placeholder="Location" type="text" class="form-control"
-                                                            id="price" value="{{.Car.Location}}" name="location" required>
+                                                            id="price" value="{{.Car.Location}}" name="location"
+                                                            required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -847,10 +904,12 @@
                                             <div class="col-lg-4">
                                                 <div class="mb-4">
                                                     <label>Vehicle Type</label>
-                                                    <select name="vehicle_type" id="vehicle_type" class="form-control" required>
+                                                    <select name="vehicle_type" id="vehicle_type" class="form-control"
+                                                        required>
                                                         {{range .vehicle_types}}
 
-                                                        <option value="{{.}}" {{if eq . $.Car.Vehicle_type}} selected{{end}}>{{.}}</option>
+                                                        <option value="{{.}}" {{if eq . $.Car.Vehicle_type}}
+                                                            selected{{end}}>{{.}}</option>
 
                                                         {{end}}
                                                     </select>
@@ -860,8 +919,8 @@
 
 
 
-                                            
-                                        
+
+
 
 
 
@@ -890,26 +949,37 @@
                                             {{ if .Car.Images }}
                                             {{ range .Car.Images }}
                                             <div class="existing-image-container m-2" id="container_{{ .ID }}">
-                                                <input type="checkbox" id="delete_image_{{ .ID }}" name="delete_images" value="{{ .ID }}" onchange="toggleImageVisibility('{{ .ID }}')" class="hidden-checkbox" />
+                                                <input type="checkbox" id="delete_image_{{ .ID }}" name="delete_images"
+                                                    value="{{ .ID }}" onchange="toggleImageVisibility('{{ .ID }}')"
+                                                    class="hidden-checkbox" />
                                                 <div class="w-full d-flex justify-content-end">
-                                                    <label for="delete_image_{{ .ID }}" class="custom-checkbox ">x</label>
+                                                    <label for="delete_image_{{ .ID }}"
+                                                        class="custom-checkbox ">x</label>
                                                 </div>
-                                        
-                                                <div class="d-flex justify-content-center align-items-center position-relative" style="width: 100px; height: 100px;">
-                                                    <img style="width: 100%; height: 100%;" src="{{ .Path }}" class="existing-image" alt="Existing Image" id="image_{{ .ID }}" />
-                                                    <label for="replace_image_{{ .ID }}" class="position-absolute center-icon btn btn-outline-dark btn-sm">
-                                                        <i class="fa fa-plus" aria-hidden="true" style="cursor: pointer;"></i>
+
+                                                <div class="d-flex justify-content-center align-items-center position-relative"
+                                                    style="width: 100px; height: 100px;">
+                                                    <img style="width: 100%; height: 100%;" src="{{ .Path }}"
+                                                        class="existing-image" alt="Existing Image"
+                                                        id="image_{{ .ID }}" />
+                                                    <label for="replace_image_{{ .ID }}"
+                                                        class="position-absolute center-icon btn btn-outline-dark btn-sm">
+                                                        <i class="fa fa-plus" aria-hidden="true"
+                                                            style="cursor: pointer;"></i>
                                                     </label>
                                                 </div>
-                                                
-                                                <input type="file" id="replace_image_{{ .ID }}" name="replace_image_{{ .ID }}" class="form-control-file image-input" accept="image/*" style="display:none;" onchange="replaceImage('{{ .ID }}', event)" />
+
+                                                <input type="file" id="replace_image_{{ .ID }}"
+                                                    name="replace_image_{{ .ID }}" class="form-control-file image-input"
+                                                    accept="image/*" style="display:none;"
+                                                    onchange="replaceImage('{{ .ID }}', event)" />
                                             </div>
                                             {{ end }}
                                             {{ else }}
                                             <p>No images available.</p>
                                             {{ end }}
                                         </div>
-                                        
+
                                     </div>
                                     <div class="row">
                                         <div class="container">
@@ -930,7 +1000,7 @@
 
 
 
-                                    
+
                                 </div>
                             </div>
                         </div>
@@ -1081,8 +1151,8 @@
         </div>
     </div>
     <!--   Core JS Files   -->
-       <script>
-                function addImageInput() {
+    <script>
+        function addImageInput() {
             const container = document.getElementById('imageInputsContainer');
             const newInput = document.createElement('input');
             newInput.type = 'file';
@@ -1092,17 +1162,17 @@
             container.appendChild(newInput);
         }
         // Event listener to handle click on the "Add Another Image" button
-        document.getElementById('addImageInput').addEventListener('click', function() {
+        document.getElementById('addImageInput').addEventListener('click', function () {
             addImageInput();
         });// Event listener to handle change in file inputs
-        document.getElementById('imageInputsContainer').addEventListener('change', function(event) {
+        document.getElementById('imageInputsContainer').addEventListener('change', function (event) {
             if (event.target && event.target.classList.contains('image-input')) {
                 const files = event.target.files;
                 const previewContainer = document.getElementById('imagePreview');
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     const reader = new FileReader();
-                    reader.onload = function() {
+                    reader.onload = function () {
                         const image = new Image();
                         image.src = reader.result;
                         image.style = 'width: 50px; height: 50px;'
@@ -1114,22 +1184,22 @@
             }
         });
         function toggleImageVisibility(id) {
-                    console.log('Toggle visibility for ID:', id); // Debugging step
-                    var checkbox = document.querySelector(`input[name="delete_images"][value="${id}"]`);
-                    var imageContainer = document.getElementById(`container_${id}`);
-                    console.log('Checkbox:', checkbox); // Debugging step
-                    console.log('Image Container:', imageContainer); // Debugging step
-                    if (checkbox && imageContainer) {
-                        if (checkbox.checked) {
-                            imageContainer.style.display = 'none';
-                        } else {
-                            imageContainer.style.display = 'block';
-                        }
-                    } else {
-                        console.error('Element not found for ID:', id); // Debugging step
-                    }
+            console.log('Toggle visibility for ID:', id); // Debugging step
+            var checkbox = document.querySelector(`input[name="delete_images"][value="${id}"]`);
+            var imageContainer = document.getElementById(`container_${id}`);
+            console.log('Checkbox:', checkbox); // Debugging step
+            console.log('Image Container:', imageContainer); // Debugging step
+            if (checkbox && imageContainer) {
+                if (checkbox.checked) {
+                    imageContainer.style.display = 'none';
+                } else {
+                    imageContainer.style.display = 'block';
                 }
-            function replaceImage(imageID, event) {
+            } else {
+                console.error('Element not found for ID:', id); // Debugging step
+            }
+        }
+        function replaceImage(imageID, event) {
             var fileInput = event.target;
             var file = fileInput.files[0];
             var reader = new FileReader();
@@ -1145,8 +1215,8 @@
             // var form = fileInput.closest('form');
             // form.submit();
         }
-        
-       </script>
+
+    </script>
     <script src="/static/js/core/popper.min.js"></script>
     <script src="/static/js/core/bootstrap.min.js"></script>
     <script src="/static/js/plugins/perfect-scrollbar.min.js"></script>
@@ -1154,7 +1224,7 @@
     <script src="/static/js/plugins/chartjs.min.js"></script>
     <script src="/static/product.js"></script>
     <script src="/static/js/main.js"></script>
-  
+
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->

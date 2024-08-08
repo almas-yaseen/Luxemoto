@@ -21,60 +21,37 @@
     <link href="/static/css/nucleo-svg.css" rel="stylesheet" />
     <!-- CSS Files -->
     <link id="pagestyle" href="/static/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
-    <style>
-        #imagePreview {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            /* 3 columns with equal width */
-            gap: 10px;
-            /* Adjust spacing between images */
-        }
-
-        .square-image {
-            width: 60%;
-            /* Occupy full width of its grid cell */
-            height: auto;
-            /* Maintain aspect ratio */
-            object-fit: cover;
-            /* Ensure the image covers the entire container */
-            border-radius: 5px;
-            /* Optional: Add rounded corners */
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-            /* Optional: Add shadow effect */
-        }
-
-        /* fayas */
-        .hidden-checkbox {
-            display: none;
-        }
-
-        .custom-checkbox {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            line-height: 20px;
-            text-align: center;
-            border-radius: 3px;
-            background-color: #ccc;
-            color: #fff;
-            cursor: pointer;
-            user-select: none;
-            font-weight: bold;
-        }
-
-        .custom-checkbox:hover {
-            background-color: #7c7a7a;
-        }
-
-        .hidden-checkbox:checked+.custom-checkbox {
-            background-color: #00ff00;
-            color: #000;
-        }
-    </style>
     <!-- Nepcha Analytics (nepcha.com) -->
     <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
     <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
+<style>
+    .pagination .page-item .page-link {
+        width: 40px;
+        /* Adjust width as needed */
+        height: 40px;
+        /* Adjust height as needed */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border-radius: 0;
+        /* Remove border-radius to make buttons square */
+        text-align: center;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        /* Background color for active page */
+        color: white;
+        /* Text color for active page */
+        border-color: #007bff;
+        /* Border color for active page */
+    }
+</style>
 
 <body class="g-sidenav-show  bg-gray-100">
     <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 "
@@ -685,471 +662,260 @@
                 </div>
             </div>
             <main class="main-wrap">
-
-                <section class="content-main">
-                    <div class="row">
-                        <div class="col-9">
-                            <div class="content-header">
-                                <h2 class="content-title">Edit Product</h2>
-                                <div>
-                                    <!-- <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button> -->
-                                    <!-- <button type="submit" class="btn btn-md rounded font-sm hover-up">Add product</button> -->
+                <div class="modal fade" id="addBrandModal" tabindex="-1" role="dialog"
+                    aria-labelledby="addBrandModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <form action="/admin/add_customers" method="post">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="addBrandModalLabel">Add Enquiry</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h4>Basic</h4>
-                                </div>
-                                <div class="card-body">
-                                    <!-- /admin/postadd-product -->
-                                    <form action="/admin/edit_page_premium/{{.Car.ID}}" method="post"
-                                        enctype="multipart/form-data" id="productForm">
-
-
-                                        <div class="row">
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Model</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="model" type="text" class="form-control"
-                                                            id="model" value="{{.Car.Model}}" name="model" required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Brand</label>
-                                                    <div class="row gx-2">
-                                                        <select name="brand" class="form-control" required>
-
-
-                                                            {{range .Brands}}
-                                                            <option value="{{.ID}}" {{if eq .ID
-                                                                $.Car.BrandID}}selected{{end}}>{{.Name}}</option>
-                                                            {{end}}
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Year</label>
-                                                    <input placeholder="year" value="{{.Car.Year}}" type="text"
-                                                        class="form-control" id="year" name="year" required>
-                                                </div>
-                                            </div>
-
-
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Color</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="color" type="text" class="form-control"
-                                                            id="color" value="{{.Car.Color}}" name="color" required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label>Car Type</label>
-                                                    <select name="car_type" id="carType" class="form-control" required>
-                                                        {{range .car_types}}
-                                                        <option value="{{.}}" {{if eq . $.Car.CarType}}selected{{end}}>
-                                                            {{.}}
-                                                        </option>
-                                                        {{end}}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label>Fuel Type</label>
-                                                    <select name="fuel_type" id="fuel_type" class="form-control"
-                                                        required>
-                                                        {{range .fuel_types}}
-
-                                                        <option value="{{.}}" {{if eq . $.Car.FuelType}} selected
-                                                            {{end}}>{{.}}</option>
-                                                        {{end}}
-
-                                                    </select>
-                                                </div>
-                                            </div>
-
-
-
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Variant</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="variant" type="text" class="form-control"
-                                                            id="variant" value="{{.Car.Variant}}" name="variant"
-                                                            required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Kms</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="kms" type="number" class="form-control"
-                                                            id="kms" value="{{.Car.Kms}}" name="kms" required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Ownership</label>
-                                                    <input placeholder="Ownership" type="text" class="form-control"
-                                                        id="ownership" value="{{.Car.Ownership}}" name="ownership"
-                                                        required>
-                                                </div>
-                                            </div>
-
-
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Transmission</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="transmission" type="text"
-                                                            class="form-control" value="{{.Car.Transmission}}"
-                                                            id="transmission" name="transmission" required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">RegNo</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="regno" type="text" class="form-control"
-                                                            id="regno" value="{{.Car.RegNo}}" name="regno" required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Price</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="price" type="number" class="form-control"
-                                                            id="price" value="{{.Car.Price}}" name="price" required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Status</label>
-                                                    <select name="status" class="form-control" required>
-                                                        <option value="sold" {{if eq .Car.Status "sold" }}selected
-                                                            {{end}}>Sold</option>
-                                                        <option value="available" {{if eq .Car.Status "available"
-                                                            }}selected {{end}}>Available</option>
-
-                                                    </select>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Engine size</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="Engine size" type="text"
-                                                            class="form-control" id="price" value="{{.Car.Engine_size}}"
-                                                            name="engine_size" required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Insurance date</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="Insurance date" type="text"
-                                                            class="form-control" id="price"
-                                                            value="{{.Car.Insurance_date}}" name="insurance_date"
-                                                            required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Location</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="Location" type="text" class="form-control"
-                                                            id="price" value="{{.Car.Location}}" name="location"
-                                                            required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Location</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="Location" type="text" class="form-control"
-                                                            id="price" value="{{.Car.Location}}" name="location"
-                                                            required>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label>Vehicle Type</label>
-                                                    <select name="vehicle_type" id="vehicle_type" class="form-control"
-                                                        required>
-                                                        {{range .vehicle_types}}
-
-                                                        <option value="{{.}}" {{if eq . $.Car.Vehicle_type}}
-                                                            selected{{end}}>{{.}}</option>
-
-                                                        {{end}}
-                                                    </select>
-                                                </div>
-                                            </div>
-
-
-
-
-
-
-
-
-
-                                        </div>
-
-
-
-
-
-
-                                        <button type="submit" class="btn btn-md rounded font-sm hover-up">Add
-                                            product</button>
-                                        <!-- form clossing was here -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-5">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h4>Media</h4>
-                                </div>
-                                <div class="card-body">
+                                <div class="modal-body">
                                     <div class="form-group">
-                                        <label>Update Images</label>
-                                        <div id="existingImages" class="image-grid d-flex flex-wrap">
-                                            {{ if .Car.Images }}
-                                            {{ range .Car.Images }}
-                                            <div class="existing-image-container m-2" id="container_{{ .ID }}">
-                                                <input type="checkbox" id="delete_image_{{ .ID }}" name="delete_images"
-                                                    value="{{ .ID }}" onchange="toggleImageVisibility('{{ .ID }}')"
-                                                    class="hidden-checkbox" />
-                                                <div class="w-full d-flex justify-content-end">
-                                                    <label for="delete_image_{{ .ID }}"
-                                                        class="custom-checkbox ">x</label>
-                                                </div>
-
-                                                <div class="d-flex justify-content-center align-items-center position-relative"
-                                                    style="width: 100px; height: 100px;">
-                                                    <img style="width: 100%; height: 100%;" src="{{ .Path }}"
-                                                        class="existing-image" alt="Existing Image"
-                                                        id="image_{{ .ID }}" />
-                                                    <label for="replace_image_{{ .ID }}"
-                                                        class="position-absolute center-icon btn btn-outline-dark btn-sm">
-                                                        <i class="fa fa-plus" aria-hidden="true"
-                                                            style="cursor: pointer;"></i>
-                                                    </label>
-                                                </div>
-
-                                                <input type="file" id="replace_image_{{ .ID }}"
-                                                    name="replace_image_{{ .ID }}" class="form-control-file image-input"
-                                                    accept="image/*" style="display:none;"
-                                                    onchange="replaceImage('{{ .ID }}', event)" />
-                                            </div>
-                                            {{ end }}
-                                            {{ else }}
-                                            <p>No images available.</p>
-                                            {{ end }}
-                                        </div>
-
+                                        <label for="newBrandName">Customer Name</label>
+                                        <input type="text" placeholder="Enter customer name" name="customer_name"
+                                            class="form-control" id="newBrandName" required>
                                     </div>
-                                    <div class="row">
-                                        <div class="container">
-                                            <div class="form-group">
-                                                <label>Add More Images</label>
-                                                <div id="imageInputsContainer">
-                                                    <input type="file" name="images[]"
-                                                        class="form-control-file image-input" accept="image/*" />
-                                                </div>
-                                                <button type="button" id="addImageInput"
-                                                    class="btn btn-primary mt-2">Add Another Image</button>
-                                            </div>
-                                            <div id="imagePreview"></div>
-                                            <div id="ReplaceImage"></div>
-                                        </div>
-                                    </div>
-
-
-
-
-
                                 </div>
-                            </div>
-                        </div>
-                        </form>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="newBrandName">Phone</label>
+                                        <input type="no" placeholder="Enter  Phone number" name="phone"
+                                            class="form-control" id="newBrandName" required>
+                                    </div>
+                                </div>
 
-                        <script>
 
-                        </script>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="newBrandName">Desired price</label>
+                                        <input type="price" placeholder="Enter  the price" name="price"
+                                            class="form-control" id="newBrandName" required>
+                                    </div>
+                                </div>
 
-                    </div>
-                </section> <!-- content-main end// -->
-                <footer class="main-footer font-xs">
-                    <div class="row pb-30 pt-15">
-                        <div class="col-sm-6">
-                            <script>
-                                document.write(new Date().getFullYear())
-                            </script> ©, Ziffy Stores
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="text-sm-end">
-                                All rights reserved
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-            </main>
 
-            <footer class="footer pt-3  ">
-                <div class="container-fluid">
-                    <div class="row align-items-center justify-content-lg-between">
-                        <div class="col-lg-6 mb-lg-0 mb-4">
-                            <div class="copyright text-center text-sm text-muted text-lg-start">
-                                ©
-                                <script>
-                                    document.write(new Date().getFullYear())
-                                </script>,
-                                made with <i class="fa fa-heart"></i> by
-                                <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">Creative
-                                    Tim</a>
-                                for a better web.
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <ul class="nav nav-footer justify-content-center justify-content-lg-end">
-                                <li class="nav-item">
-                                    <a href="https://www.creative-tim.com" class="nav-link text-muted"
-                                        target="_blank">Creative Tim</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="https://www.creative-tim.com/presentation" class="nav-link text-muted"
-                                        target="_blank">About Us</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="https://www.creative-tim.com/blog" class="nav-link text-muted"
-                                        target="_blank">Blog</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="https://www.creative-tim.com/license" class="nav-link pe-0 text-muted"
-                                        target="_blank">License</a>
-                                </li>
-                            </ul>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="newBrandName">Desired car</label>
+                                        <input type="text" placeholder="Enter the car" name="cars" class="form-control"
+                                            id="newBrandName" required>
+                                    </div>
+                                </div>
+
+
+
+
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Add Customer</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
-            </footer>
+
+
+                <div class="row">
+                    <div class="col-9">
+                        <div class="content-header">
+                            <h2 class="content-title">Add Enquiry</h2>
+                            <div>
+
+                                <button class="btn btn-md btn-primary" data-toggle="modal"
+                                    data-target="#addBrandModal">Add Enquiry</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+                <div class="table-responsive">
+                    <table class="table">
+
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Customer Name</th>
+                                <th scope="col">Phone</th>
+                                <th>Desired Price</th>
+                                <th>Desired Cars</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range $index,$brand := .enquries}}
+                            <tr>
+                                <th scope="row">{{$index | add 1}}</th>
+                                <td>{{.CustomerName}}</td>
+                                <td>{{.Phone}}</td>
+                                <td>{{.DesiredPrice}}</td>
+                                <td>{{.DesiredCars}}</td>
+                                <td>
+                                    <!-- Edit Button -->
+                                    <button class="btn btn-primary btn-sm" data-toggle="modal"
+                                        data-target="#editModal{{$brand.ID}}">Edit</button>
+                                    <!-- Delete Button -->
+                                    <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                        data-target="#deleteModal{{$brand.ID}}"
+                                        onclick="setDeleteItemId(1)">Delete</button>
+                                </td>
+                            </tr>
+
+
+                        </tbody>
+
+                        <!-- Add more rows as needed -->
+
+
+
+                </div>
+                <!-- Add Brand Modal -->
+
+
+
+
+
+
+
+                <div class="modal fade" id="editModal{{$brand.ID}}" tabindex="-1" role="dialog"
+                    aria-labelledby="editModalLabel{{$brand.ID}}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel{{$brand.ID}}">Edit Item</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/admin/edit_enquiry/{{$brand.ID}}" method="post">
+
+                                    <div class="form-group">
+                                        <label for="itemBrand{{$brand.ID}}">CustomerName</label>
+                                        <input type="text" placeholder="eg:john,doe" name="customer_name"
+                                            value="{{$brand.CustomerName}}" class="form-control" id="itemBrand">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="itemBrand{{$brand.ID}}">Phone</label>
+                                        <input type="text" placeholder="eg:+9190371,0484" name="phone"
+                                            value="{{$brand.Phone}}" class="form-control" id="itemBrand">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="itemBrand{{$brand.DesiredPrice}}">Price</label>
+                                        <input type="text" placeholder="eg:1200,2300" name="price"
+                                            value="{{$brand.DesiredPrice}}" class="form-control" id="itemBrand">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="itemBrand{{$brand.DesiredCars}}">cars</label>
+                                        <input type="text" placeholder="eg:bmw,benz" name="cars"
+                                            value="{{$brand.DesiredCars}}" class="form-control" id="itemBrand">
+                                    </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" onclick="saveChanges()">Save
+                                    changes</button>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+                <div class="modal fade" id="deleteModal{{$brand.ID}}" tabindex="-1" role="dialog"
+                    aria-labelledby="deleteModalLabel{{$brand.ID}}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel">Delete Item</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete this item?</p>
+                                <form action="/admin/delete_enquiry/{{$brand.ID}}" method="post">
+                                    <input type="hidden" id="deleteItemId">
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+                </tbody>
         </div>
+        </table>
+
+
+
+
+
+
     </main>
-    <div class="fixed-plugin">
-        <a class="fixed-plugin-button text-dark position-fixed px-3 py-2">
-            <i class="fa fa-cog py-2"> </i>
-        </a>
-        <div class="card shadow-lg ">
-            <div class="card-header pb-0 pt-3 ">
-                <div class="float-start">
-                    <h5 class="mt-3 mb-0">Soft UI Configurator</h5>
-                    <p>See our dashboard options.</p>
-                </div>
-                <div class="float-end mt-4">
-                    <button class="btn btn-link text-dark p-0 fixed-plugin-close-button">
-                        <i class="fa fa-close"></i>
-                    </button>
-                </div>
-                <!-- End Toggle Button -->
-            </div>
-            <hr class="horizontal dark my-1">
-            <div class="card-body pt-sm-3 pt-0">
-                <!-- Sidebar Backgrounds -->
-                <div>
-                    <h6 class="mb-0">Sidebar Colors</h6>
-                </div>
-                <a href="javascript:void(0)" class="switch-trigger background-color">
-                    <div class="badge-colors my-2 text-start">
-                        <span class="badge filter bg-gradient-primary active" data-color="primary"
-                            onclick="sidebarColor(this)"></span>
-                        <span class="badge filter bg-gradient-dark" data-color="dark"
-                            onclick="sidebarColor(this)"></span>
-                        <span class="badge filter bg-gradient-info" data-color="info"
-                            onclick="sidebarColor(this)"></span>
-                        <span class="badge filter bg-gradient-success" data-color="success"
-                            onclick="sidebarColor(this)"></span>
-                        <span class="badge filter bg-gradient-warning" data-color="warning"
-                            onclick="sidebarColor(this)"></span>
-                        <span class="badge filter bg-gradient-danger" data-color="danger"
-                            onclick="sidebarColor(this)"></span>
-                    </div>
-                </a>
-                <!-- Sidenav Type -->
-                <div class="mt-3">
-                    <h6 class="mb-0">Sidenav Type</h6>
-                    <p class="text-sm">Choose between 2 different sidenav types.</p>
-                </div>
-                <div class="d-flex">
-                    <button class="btn bg-gradient-primary w-100 px-3 mb-2 active" data-class="bg-transparent"
-                        onclick="sidebarType(this)">Transparent</button>
-                    <button class="btn bg-gradient-primary w-100 px-3 mb-2 ms-2" data-class="bg-white"
-                        onclick="sidebarType(this)">White</button>
-                </div>
-                <p class="text-sm d-xl-none d-block mt-2">You can change the sidenav type just on desktop view.</p>
-                <!-- Navbar Fixed -->
-                <div class="mt-3">
-                    <h6 class="mb-0">Navbar Fixed</h6>
-                </div>
-                <div class="form-check form-switch ps-0">
-                    <input class="form-check-input mt-1 ms-auto" type="checkbox" id="navbarFixed"
-                        onclick="navbarFixed(this)">
-                </div>
-                <hr class="horizontal dark my-sm-4">
-                <a class="btn bg-gradient-dark w-100" href="https://www.creative-tim.com/product/soft-ui-dashboard">Free
-                    Download</a>
-                <a class="btn btn-outline-dark w-100"
-                    href="https://www.creative-tim.com/learning-lab/bootstrap/license/soft-ui-dashboard">View
-                    documentation</a>
-                <div class="w-100 text-center">
-                    <a class="github-button" href="https://github.com/creativetimofficial/soft-ui-dashboard"
-                        data-icon="octicon-star" data-size="large" data-show-count="true"
-                        aria-label="Star creativetimofficial/soft-ui-dashboard on GitHub">Star</a>
-                    <h6 class="mt-3">Thank you for sharing!</h6>
-                    <a href="https://twitter.com/intent/tweet?text=Check%20Soft%20UI%20Dashboard%20made%20by%20%40CreativeTim%20%23webdesign%20%23dashboard%20%23bootstrap5&amp;url=https%3A%2F%2Fwww.creative-tim.com%2Fproduct%2Fsoft-ui-dashboard"
-                        class="btn btn-dark mb-0 me-2" target="_blank">
-                        <i class="fab fa-twitter me-1" aria-hidden="true"></i> Tweet
-                    </a>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.creative-tim.com/product/soft-ui-dashboard"
-                        class="btn btn-dark mb-0 me-2" target="_blank">
-                        <i class="fab fa-facebook-square me-1" aria-hidden="true"></i> Share
-                    </a>
-                </div>
-            </div>
-        </div>
+
+
     </div>
+    <div class="row justify-content-center ml-5">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <!-- Previous Page Link -->
+                <li class="page-item {{if eq .Page 1}}disabled{{end}}">
+                    <a href="?page={{sub .Page 1}}&limit={{.Limit}}" class="page-link">prev</a>
+                </li>
+                {{range $i, $page := .Pages}}
+                <li class="page-item {{if eq $.Page $page}}active{{end}}">
+                    <a href="?page={{$page}}&limit={{$.Limit}}" class="page-link">{{$page}}</a>
+                </li>
+                {{end}}
+                <!-- Next Page Link -->
+                <li class="page-item {{if eq .Page .totalPages}}disabled{{end}}">
+                    <a href="?page={{add .Page 1}}&limit={{.Limit}}" class="page-link">next</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="hint-text ml-5">Showing <b>{{len .enquries}}</b> out of <b>{{.totalCount}}</b> entries</div>
+
+
+        </main>
+
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
     <!--   Core JS Files   -->
     <script>
         function addImageInput() {
@@ -1183,39 +949,6 @@
                 }
             }
         });
-        function toggleImageVisibility(id) {
-            console.log('Toggle visibility for ID:', id); // Debugging step
-            var checkbox = document.querySelector(`input[name="delete_images"][value="${id}"]`);
-            var imageContainer = document.getElementById(`container_${id}`);
-            console.log('Checkbox:', checkbox); // Debugging step
-            console.log('Image Container:', imageContainer); // Debugging step
-            if (checkbox && imageContainer) {
-                if (checkbox.checked) {
-                    imageContainer.style.display = 'none';
-                } else {
-                    imageContainer.style.display = 'block';
-                }
-            } else {
-                console.error('Element not found for ID:', id); // Debugging step
-            }
-        }
-        function replaceImage(imageID, event) {
-            var fileInput = event.target;
-            var file = fileInput.files[0];
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                var imageElement = document.getElementById('image_' + imageID);
-                imageElement.src = e.target.result;
-            }
-
-            reader.readAsDataURL(file);
-
-            // Optionally, you can also submit the form automatically to save the new image on the server
-            // var form = fileInput.closest('form');
-            // form.submit();
-        }
-
     </script>
     <script src="/static/js/core/popper.min.js"></script>
     <script src="/static/js/core/bootstrap.min.js"></script>
@@ -1223,8 +956,12 @@
     <script src="/static/js/plugins/smooth-scrollbar.min.js"></script>
     <script src="/static/js/plugins/chartjs.min.js"></script>
     <script src="/static/product.js"></script>
-    <script src="/static/js/main.js"></script>
+    <script>
 
+    </script>
+    <script>
+
+    </script>
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
