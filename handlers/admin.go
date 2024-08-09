@@ -17,6 +17,26 @@ import (
 	"gorm.io/gorm"
 )
 
+func ChangePassword(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+	}
+}
+
+func Profile(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var user []domain.User
+
+		if err := db.Find(&user).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the user"})
+			return
+		}
+		c.HTML(http.StatusOK, "profile.html", gin.H{"user": user})
+
+	}
+}
+
 func YoutubePageDelete(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")

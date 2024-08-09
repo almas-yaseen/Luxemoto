@@ -55,7 +55,8 @@ func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 
 		// Profile setup
 
-		admin.GET("")
+		admin.GET("/profile", handlers.Profile(db))
+		admin.POST("/change_password", handlers.ChangePassword(db))
 
 	}
 
