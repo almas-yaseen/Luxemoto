@@ -20,6 +20,18 @@ import (
 func YoutubePageDelete(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
+		var youtube domain.YoutubeLink
+
+		if err := db.First(&youtube, id).Find(&youtube).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find the youtube link"})
+			return
+		}
+
+		if err := db.Delete(&youtube).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"deleted": "successfully"})
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/admin/youtube_page")
 	}
 }
 

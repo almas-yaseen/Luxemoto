@@ -51,7 +51,11 @@ func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 
 		admin.GET("/youtube_page", handlers.YoutubePage(db))
 		admin.POST("/youtube_page_edit/:id", handlers.YoutubePageEdit(db))
-		admin.POST("youtube_page_delete/:id".handlers.YoutubePageDelete(db))
+		admin.POST("youtube_page_delete/:id", handlers.YoutubePageDelete(db))
+
+		// Profile setup
+
+		admin.GET("")
 
 	}
 
