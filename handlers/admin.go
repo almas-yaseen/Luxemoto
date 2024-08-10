@@ -20,6 +20,39 @@ import (
 func ChangePassword(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		email := c.PostForm("email")
+		current_password := c.PostForm("current_password")
+		new_password := c.PostForm("new_password")
+		confirm_password := c.PostForm("confirm_password")
+
+		var user domain.User
+
+		if err := db.Where("email=?", email).First(&user).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed  to find the  user"})
+		}
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(current_password)); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find the user"})
+			return
+		}
+
+		if new_password != confirm_password {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "new password or confirm password not correct "})
+			return
+		}
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(new_password), bcrypt.DefaultCost)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to hash the password"})
+			return
+		}
+		user.Password = string(hashedPassword)
+		fmt.Println("here is the user.password", user.Password)
+		if err := db.Save(&user).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save the user"})
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/admin/profile")
+
 	}
 }
 
@@ -1052,39 +1085,44 @@ func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 	}
 
 }
-
 func AdminLogin(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var input domain.User
 		input.Email = c.PostForm("email")
-
-		fmt.Println("here is the email", input.Email)
 		input.Password = c.PostForm("password")
+
+		fmt.Println("Input Email:", input.Email)
+		fmt.Println("Input Password (plaintext):", input.Password)
 
 		var user domain.User
 
 		if err := db.Where("email=?", input.Email).First(&user).Error; err != nil {
+			fmt.Println("Error finding user:", err)
 			c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": "invalid credentials"})
 			return
 		}
 
-		if !user.IsAdmin {
-			c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": "user is not admin"})
-			return
-		}
+		fmt.Println("Stored Hashed Password:", user.Password)
 
 		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
+			fmt.Println("Password comparison failed:", err)
 			c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": "invalid credentials"})
 			return
 		}
+
 		token, err := utils.GenerateToken(user.Email)
 		if err != nil {
+			fmt.Println("Error generating token:", err)
 			c.HTML(http.StatusInternalServerError, "login.html", gin.H{"error": "token based error"})
 			return
 		}
-		c.SetCookie("token", token, 3600, "/", "localhost", false, true)
-		fmt.Println("here is the token", token)
-		c.Redirect(http.StatusFound, "/admin/dashboard")
 
+		c.SetCookie("token", token, 3600, "/", "localhost", false, true)
+		fmt.Println("Generated Token:", token)
+		c.Redirect(http.StatusFound, "/admin/dashboard")
 	}
+}
+func checkPassword(hashedPassword, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	return err == nil
 }

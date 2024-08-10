@@ -43,13 +43,13 @@ func CORSMiddleware() gin.HandlerFunc {
 func main() {
 	// Add function to increment index
 
-	password := "luxemoto@123"
+	password := "almas1" // example plaintext password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		fmt.Println("error hashing password", err)
+		fmt.Println("Error hashing password:", err)
 		return
 	}
-	fmt.Println("hashed password", string(hashedPassword))
+	fmt.Println("Hashed Password:", string(hashedPassword))
 
 	cfg, err := config.LoadConfig()
 	if err != nil {

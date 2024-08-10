@@ -708,18 +708,24 @@
                     <div class="col-md-4"> <!-- Adjust the column size to reduce the form width -->
                         <form action="/admin/change_password" method="post" enctype="multipart/form-data">
                             <!-- Email input -->
+                              <!-- Email input -->
                             <div data-mdb-input-init class="form-outline mb-4">
-                                <input type="confirm_password" id="form2Example1" class="form-control" />
+                                <input type="email" name="email" id="form2Example1" class="form-control" />
+                                <label class="form-label" for="form2Example1">Email</label>
+                            </div>
+                
+                            <div data-mdb-input-init class="form-outline mb-4">
+                                <input type="password" name="current_password" id="form2Example1" class="form-control" />
                                 <label class="form-label" for="form2Example1">Current Password</label>
                             </div>
                 
                             <!-- Password input -->
                             <div data-mdb-input-init class="form-outline mb-4">
-                                <input type="password1" id="form2Example2" class="form-control" />
+                                <input type="password" name="password1" id="form2Example2" class="form-control" />
                                 <label class="form-label" for="form2Example2">New Password</label>
                             </div>
                             <div data-mdb-input-init class="form-outline mb-4">
-                                <input type="password2" id="form2Example2" class="form-control" />
+                                <input type="password" name="password2" id="form2Example2" class="form-control" />
                                 <label class="form-label" for="form2Example2">Confirm password</label>
                             </div>
                 
@@ -741,33 +747,10 @@
                             </div>
                 
                             <!-- Submit button -->
-                            <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                class="btn btn-primary btn-block mb-4">Confirm</button>
+                            <button type="submit" class="btn btn-primary btn-block mb-4">Confirm</button>
                 
                             <!-- Register buttons -->
-                            <div class="text-center">
-                                <p>Not a member? <a href="#!">Register</a></p>
-                                <p>or sign up with:</p>
-                                <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                    class="btn btn-link btn-floating mx-1">
-                                    <i class="fab fa-facebook-f"></i>
-                                </button>
-                
-                                <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                    class="btn btn-link btn-floating mx-1">
-                                    <i class="fab fa-google"></i>
-                                </button>
-                
-                                <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                    class="btn btn-link btn-floating mx-1">
-                                    <i class="fab fa-twitter"></i>
-                                </button>
-                
-                                <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                    class="btn btn-link btn-floating mx-1">
-                                    <i class="fab fa-github"></i>
-                                </button>
-                            </div>
+                    
                         </form>
                     </div>
                 </div>
