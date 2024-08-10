@@ -4,11 +4,24 @@ import (
 	"fmt"
 	"ginapp/config"
 	"ginapp/database"
+	"ginapp/routes"
+	"text/template"
+
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
+
+func add(x, y int) int {
+	return x + y
+}
+
+// Sub function to decrement index
+func sub(x, y int) int {
+	return x - y
+}
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -28,26 +41,53 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func main() {
+	// Add function to increment index
+
+	password := "almas1" // example plaintext password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println("Error hashing password:", err)
+		return
+	}
+	fmt.Println("Hashed Password:", string(hashedPassword))
+
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("error loading the config", err)
 	}
+
 	db, err := database.ConnectDatabase(cfg)
-	fmt.Println("db is here", db)
+	fmt.Println("come on db", db)
 	if err != nil {
 		log.Fatalf("error connecting to the database: %v", err)
 	}
 
 	log.Println("Database connection successful!")
 	router := gin.Default()
+	router.SetFuncMap(template.FuncMap{
+		"add": add,
+		"sub": sub,
+	})
+	router.Use(CORSMiddleware())
+	router.LoadHTMLGlob("templates/*.html")
 
-	if err != nil {
-		log.Fatalf("error connecting to the database", db)
+	// tmpl := template.Must(template.New("").ParseFiles(files...))
+
+	// router.SetHTMLTemplate(tmpl)
+
+	//admin routes
+	adminGroup := router.Group("/admin")
+	routes.AdminRoutes(adminGroup, db)
+
+	//user routes
+
+	userGroup := router.Group("/myapp")
+	routes.UserRoutes(userGroup, db)
+
+	router.Static("/static", "./static")
+	router.Static("/uploads", "./uploads")
+
+	if err := router.Run("localhost:8080"); err != nil {
+		log.Fatalf("Failed to run server: %v", err)
 	}
-	err = router.Run("localhost:8080")
-
-	if err != nil {
-		log.Fatalf("localhost %v", err)
-	}
-
 }

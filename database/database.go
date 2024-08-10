@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"ginapp/config"
+	"ginapp/domain"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,6 +21,15 @@ func ConnectDatabase(cfg config.Config) (*gorm.DB, error) {
 
 	}
 	DB = db
+	fmt.Println("here is DB", DB)
+
+	DB.AutoMigrate(&domain.User{})
+	DB.AutoMigrate(&domain.Brand{})
+	DB.AutoMigrate(&domain.Vehicle{})
+	DB.AutoMigrate(&domain.Image{})
+	DB.AutoMigrate(&domain.Enquiry{})
+	DB.AutoMigrate(&domain.CustomerImage{})
+	DB.AutoMigrate(&domain.YoutubeLink{})
 
 	return DB, nil
 
