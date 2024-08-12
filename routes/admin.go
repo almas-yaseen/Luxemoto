@@ -58,6 +58,10 @@ func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 		admin.GET("/profile", handlers.Profile(db))
 		admin.POST("/change_password", handlers.ChangePassword(db))
 
+		//gallery
+		admin.GET("/gallery", handlers.Gallery(db))
+		admin.POST("/add_customer_image", handlers.AddCustomerImage(db))
+
 	}
 
 	return admin

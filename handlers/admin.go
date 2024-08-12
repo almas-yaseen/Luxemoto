@@ -17,21 +17,73 @@ import (
 	"gorm.io/gorm"
 )
 
+func AddCustomerImage(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var customerimages domain.CustomerImage
+
+		CustomerImage, err := c.FormFile("image")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the image"})
+			return
+		}
+		fmt.Println("here is teh customer image", CustomerImage)
+		customerImagePath := filepath.Join("uploads/customer", fmt.Sprintf("%d_%s", time.Now().UnixNano(), CustomerImage.Filename)) //creating  the file and the details
+		if err := c.SaveUploadedFile(CustomerImage, customerImagePath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save the image"})
+			return
+		}
+
+		customerimages.Path = customerImagePath
+
+		if err := db.Create(&customerimages).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload"})
+			return
+		}
+
+		c.Redirect(http.StatusSeeOther, "/admin/gallery")
+
+	}
+}
+
+func Gallery(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var gallery []domain.CustomerImage
+
+		if err := db.Find(&gallery).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "customer image failed to get"})
+			return
+		}
+		c.HTML(http.StatusOK, "gallery.html", gin.H{"enquries": gallery})
+
+	}
+}
+
 func ChangePassword(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		email := c.PostForm("email")
+		fmt.Println("here is the email", email)
 		current_password := c.PostForm("current_password")
-		new_password := c.PostForm("new_password")
-		confirm_password := c.PostForm("confirm_password")
+		fmt.Println("here is the current password", current_password)
+		new_password := c.PostForm("password1")
+		confirm_password := c.PostForm("password2")
 
 		var user domain.User
 
-		if err := db.Where("email=?", email).First(&user).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed  to find the  user"})
-		}
-		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(current_password)); err != nil {
+		if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+			fmt.Println("Error finding user:", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find the user"})
+			return
+		}
+		fmt.Println("Stored Hashed Password:", user.Password)
+
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(current_password)); err != nil {
+			fmt.Println("Input Current Password:", current_password)
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error":   "Incorrect current password",
+				"details": err.Error(), // Include the actual error message for debugging
+			})
 			return
 		}
 
@@ -45,8 +97,10 @@ func ChangePassword(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to hash the password"})
 			return
 		}
+
 		user.Password = string(hashedPassword)
 		fmt.Println("here is the user.password", user.Password)
+
 		if err := db.Save(&user).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save the user"})
 			return
@@ -1091,18 +1145,12 @@ func AdminLogin(db *gorm.DB) gin.HandlerFunc {
 		input.Email = c.PostForm("email")
 		input.Password = c.PostForm("password")
 
-		fmt.Println("Input Email:", input.Email)
-		fmt.Println("Input Password (plaintext):", input.Password)
-
 		var user domain.User
-
-		if err := db.Where("email=?", input.Email).First(&user).Error; err != nil {
-			fmt.Println("Error finding user:", err)
+		if err := db.Where("email = ?", input.Email).First(&user).Error; err != nil {
+			fmt.Println("User not found:", err)
 			c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": "invalid credentials"})
 			return
 		}
-
-		fmt.Println("Stored Hashed Password:", user.Password)
 
 		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
 			fmt.Println("Password comparison failed:", err)
@@ -1110,19 +1158,15 @@ func AdminLogin(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
+		// Password matched, proceed to login
 		token, err := utils.GenerateToken(user.Email)
 		if err != nil {
 			fmt.Println("Error generating token:", err)
-			c.HTML(http.StatusInternalServerError, "login.html", gin.H{"error": "token based error"})
+			c.HTML(http.StatusInternalServerError, "login.html", gin.H{"error": "token error"})
 			return
 		}
 
 		c.SetCookie("token", token, 3600, "/", "localhost", false, true)
-		fmt.Println("Generated Token:", token)
 		c.Redirect(http.StatusFound, "/admin/dashboard")
 	}
-}
-func checkPassword(hashedPassword, password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-	return err == nil
 }
