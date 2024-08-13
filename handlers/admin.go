@@ -1039,6 +1039,7 @@ func AddProduct(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		files := form.File["images[]"]
+
 		fmt.Println("here is the files", files)
 
 		for _, file := range files {
@@ -1050,23 +1051,24 @@ func AddProduct(db *gorm.DB) gin.HandlerFunc {
 			}
 			imagePath := "/" + strings.ReplaceAll(uploadPath, "\\", "/")
 			images = append(images, domain.Image{Path: imagePath})
-			vehicle.Images = images
-
-			if err := db.Create(&vehicle).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the car"})
-				return
-			}
-
-			if err := db.Preload("Brand").First(&vehicle, vehicle.ID).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to load the car brand"})
-				return
-			}
-
-			c.Redirect(http.StatusSeeOther, "/admin/product")
 
 		}
+		vehicle.Images = images
+
+		if err := db.Create(&vehicle).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the car"})
+			return
+		}
+
+		if err := db.Preload("Brand").First(&vehicle, vehicle.ID).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to load the car brand"})
+			return
+		}
+
+		c.Redirect(http.StatusSeeOther, "/admin/product")
 
 	}
+
 }
 
 func ProductPage(db *gorm.DB) gin.HandlerFunc {
@@ -1151,7 +1153,7 @@ func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 			page = 1
 		}
 
-		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "1"))
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "10"))
 
 		offset = (page - 1) * limit
 
