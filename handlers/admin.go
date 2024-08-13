@@ -17,6 +17,62 @@ import (
 	"gorm.io/gorm"
 )
 
+func DeleteCustomerImage(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var customerimage domain.CustomerImage
+
+		id := c.Param("id")
+
+		if err := db.First(&customerimage, id).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete the customer image"})
+			return
+		}
+
+		if err := os.Remove(customerimage.Path); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed remove the customer image"})
+			return
+		}
+
+		if err := db.Delete(&customerimage).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete the image"})
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/admin/gallery")
+
+	}
+}
+
+func EditCustomerImage(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var customerimage domain.CustomerImage
+		id := c.Param("id")
+		if err := db.First(&customerimage, id).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to  find the id"})
+			return
+		}
+		file, err := c.FormFile("image")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to  find the image"})
+			return
+		}
+
+		newimagepath := filepath.Join("uploads", fmt.Sprintf("%d_%s", time.Now().UnixNano(), file.Filename))
+		if err := c.SaveUploadedFile(file, newimagepath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save"})
+			return
+		}
+
+		customerimage.Path = newimagepath
+		if err := db.Save(&customerimage).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find the image"})
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/admin/gallery")
+
+	}
+}
+
 func AddCustomerImage(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 

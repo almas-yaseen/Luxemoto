@@ -61,6 +61,8 @@ func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 		//gallery
 		admin.GET("/gallery", handlers.Gallery(db))
 		admin.POST("/add_customer_image", handlers.AddCustomerImage(db))
+		admin.POST("/edit_customer_image/:id", handlers.EditCustomerImage(db))
+		admin.POST("/delete_customer_images/:id", handlers.DeleteCustomerImage(db))
 
 	}
 
