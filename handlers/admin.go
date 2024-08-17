@@ -1133,8 +1133,55 @@ func Adminlogin(c *gin.Context) {
 	// If there's no valid token, render the login page
 	c.HTML(http.StatusOK, "login.html", nil)
 }
-func AdminDashboard(c *gin.Context) {
-	c.HTML(200, "dashboard.html", gin.H{})
+func AdminDashboard(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var (
+			AboveFiftyLakh    []domain.Vehicle
+			EnquiredCustomers []domain.Enquiry
+			PremiumCarsTotal  int64
+			MiniCarsTotal     int64
+			TotalCars         int64
+		)
+
+		if err := db.Model(&domain.Vehicle{}).Where("price > ?", 5000000).Find(&AboveFiftyLakh).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the above fifty lakh customer"})
+			return
+		}
+
+		// Retrieve enquired customers
+		if err := db.Find(&EnquiredCustomers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve enquired customers"})
+			return
+		}
+
+		// Count total cars
+		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count total cars"})
+			return
+		}
+
+		// Count premium cars
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count premium cars"})
+			return
+		}
+
+		// Count mini cars
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count mini cars"})
+			return
+		}
+
+		// Render the dashboard with the retrieved data
+		c.HTML(http.StatusOK, "dashboard.html", gin.H{
+			"enquiredcustomers": len(EnquiredCustomers),
+			"premiumcarstotal":  PremiumCarsTotal,
+			"minicarstotal":     MiniCarsTotal,
+			"totalcars":         TotalCars,
+			"abovefifty":        AboveFiftyLakh,
+		})
+	}
 }
 
 func PremiumCars(db *gorm.DB) gin.HandlerFunc {

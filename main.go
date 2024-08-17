@@ -11,7 +11,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func add(x, y int) int {
@@ -41,17 +40,6 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func main() {
-	// Add function to increment index
-	password := []byte("jacky")
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("jacky"), bcrypt.DefaultCost)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("New Hashed Password:", string(hashedPassword))
-
-	// Comparing the password with the hash
-	err = bcrypt.CompareHashAndPassword(hashedPassword, password)
-	fmt.Println(err) // nil means it is a match
 
 	cfg, err := config.LoadConfig()
 	if err != nil {
