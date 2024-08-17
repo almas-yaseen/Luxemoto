@@ -17,21 +17,129 @@ import (
 	"gorm.io/gorm"
 )
 
+func DeleteCustomerImage(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var customerimage domain.CustomerImage
+
+		id := c.Param("id")
+
+		if err := db.First(&customerimage, id).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete the customer image"})
+			return
+		}
+
+		if err := os.Remove(customerimage.Path); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed remove the customer image"})
+			return
+		}
+
+		if err := db.Delete(&customerimage).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete the image"})
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/admin/gallery")
+
+	}
+}
+
+func EditCustomerImage(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var customerimage domain.CustomerImage
+		id := c.Param("id")
+		if err := db.First(&customerimage, id).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to  find the id"})
+			return
+		}
+		file, err := c.FormFile("image")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to  find the image"})
+			return
+		}
+
+		newimagepath := filepath.Join("uploads", fmt.Sprintf("%d_%s", time.Now().UnixNano(), file.Filename))
+		if err := c.SaveUploadedFile(file, newimagepath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save"})
+			return
+		}
+
+		customerimage.Path = newimagepath
+		if err := db.Save(&customerimage).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find the image"})
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/admin/gallery")
+
+	}
+}
+
+func AddCustomerImage(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var customerimages domain.CustomerImage
+
+		CustomerImage, err := c.FormFile("image")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the image"})
+			return
+		}
+		fmt.Println("here is teh customer image", CustomerImage)
+		customerImagePath := filepath.Join("uploads/customer", fmt.Sprintf("%d_%s", time.Now().UnixNano(), CustomerImage.Filename)) //creating  the file and the details
+		if err := c.SaveUploadedFile(CustomerImage, customerImagePath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save the image"})
+			return
+		}
+
+		customerimages.Path = customerImagePath
+
+		if err := db.Create(&customerimages).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload"})
+			return
+		}
+
+		c.Redirect(http.StatusSeeOther, "/admin/gallery")
+
+	}
+}
+
+func Gallery(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var gallery []domain.CustomerImage
+
+		if err := db.Find(&gallery).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "customer image failed to get"})
+			return
+		}
+		c.HTML(http.StatusOK, "gallery.html", gin.H{"enquries": gallery})
+
+	}
+}
+
 func ChangePassword(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		email := c.PostForm("email")
+		fmt.Println("here is the email", email)
 		current_password := c.PostForm("current_password")
-		new_password := c.PostForm("new_password")
-		confirm_password := c.PostForm("confirm_password")
+		fmt.Println("here is the current password", current_password)
+		new_password := c.PostForm("password1")
+		confirm_password := c.PostForm("password2")
 
 		var user domain.User
 
-		if err := db.Where("email=?", email).First(&user).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed  to find the  user"})
-		}
-		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(current_password)); err != nil {
+		if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+			fmt.Println("Error finding user:", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find the user"})
+			return
+		}
+		fmt.Println("Stored Hashed Password:", user.Password)
+
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(current_password)); err != nil {
+			fmt.Println("Input Current Password:", current_password)
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error":   "Incorrect current password",
+				"details": err.Error(), // Include the actual error message for debugging
+			})
 			return
 		}
 
@@ -45,8 +153,10 @@ func ChangePassword(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to hash the password"})
 			return
 		}
+
 		user.Password = string(hashedPassword)
 		fmt.Println("here is the user.password", user.Password)
+
 		if err := db.Save(&user).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save the user"})
 			return
@@ -929,6 +1039,7 @@ func AddProduct(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		files := form.File["images[]"]
+
 		fmt.Println("here is the files", files)
 
 		for _, file := range files {
@@ -940,23 +1051,24 @@ func AddProduct(db *gorm.DB) gin.HandlerFunc {
 			}
 			imagePath := "/" + strings.ReplaceAll(uploadPath, "\\", "/")
 			images = append(images, domain.Image{Path: imagePath})
-			vehicle.Images = images
-
-			if err := db.Create(&vehicle).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the car"})
-				return
-			}
-
-			if err := db.Preload("Brand").First(&vehicle, vehicle.ID).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to load the car brand"})
-				return
-			}
-
-			c.Redirect(http.StatusSeeOther, "/admin/product")
 
 		}
+		vehicle.Images = images
+
+		if err := db.Create(&vehicle).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the car"})
+			return
+		}
+
+		if err := db.Preload("Brand").First(&vehicle, vehicle.ID).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to load the car brand"})
+			return
+		}
+
+		c.Redirect(http.StatusSeeOther, "/admin/product")
 
 	}
+
 }
 
 func ProductPage(db *gorm.DB) gin.HandlerFunc {
@@ -1021,8 +1133,55 @@ func Adminlogin(c *gin.Context) {
 	// If there's no valid token, render the login page
 	c.HTML(http.StatusOK, "login.html", nil)
 }
-func AdminDashboard(c *gin.Context) {
-	c.HTML(200, "dashboard.html", gin.H{})
+func AdminDashboard(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var (
+			AboveFiftyLakh    []domain.Vehicle
+			EnquiredCustomers []domain.Enquiry
+			PremiumCarsTotal  int64
+			MiniCarsTotal     int64
+			TotalCars         int64
+		)
+
+		if err := db.Preload("Brand").Model(&domain.Vehicle{}).Where("price > ?", 5000000).Find(&AboveFiftyLakh).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the above fifty lakh customer"})
+			return
+		}
+
+		// Retrieve enquired customers
+		if err := db.Find(&EnquiredCustomers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve enquired customers"})
+			return
+		}
+
+		// Count total cars
+		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count total cars"})
+			return
+		}
+
+		// Count premium cars
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count premium cars"})
+			return
+		}
+
+		// Count mini cars
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count mini cars"})
+			return
+		}
+
+		// Render the dashboard with the retrieved data
+		c.HTML(http.StatusOK, "dashboard.html", gin.H{
+			"enquiredcustomers": len(EnquiredCustomers),
+			"premiumcarstotal":  PremiumCarsTotal,
+			"minicarstotal":     MiniCarsTotal,
+			"totalcars":         TotalCars,
+			"abovefifty":        AboveFiftyLakh,
+		})
+	}
 }
 
 func PremiumCars(db *gorm.DB) gin.HandlerFunc {
@@ -1041,7 +1200,7 @@ func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 			page = 1
 		}
 
-		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "1"))
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "10"))
 
 		offset = (page - 1) * limit
 
@@ -1091,18 +1250,12 @@ func AdminLogin(db *gorm.DB) gin.HandlerFunc {
 		input.Email = c.PostForm("email")
 		input.Password = c.PostForm("password")
 
-		fmt.Println("Input Email:", input.Email)
-		fmt.Println("Input Password (plaintext):", input.Password)
-
 		var user domain.User
-
-		if err := db.Where("email=?", input.Email).First(&user).Error; err != nil {
-			fmt.Println("Error finding user:", err)
+		if err := db.Where("email = ?", input.Email).First(&user).Error; err != nil {
+			fmt.Println("User not found:", err)
 			c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": "invalid credentials"})
 			return
 		}
-
-		fmt.Println("Stored Hashed Password:", user.Password)
 
 		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
 			fmt.Println("Password comparison failed:", err)
@@ -1110,19 +1263,15 @@ func AdminLogin(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
+		// Password matched, proceed to login
 		token, err := utils.GenerateToken(user.Email)
 		if err != nil {
 			fmt.Println("Error generating token:", err)
-			c.HTML(http.StatusInternalServerError, "login.html", gin.H{"error": "token based error"})
+			c.HTML(http.StatusInternalServerError, "login.html", gin.H{"error": "token error"})
 			return
 		}
 
 		c.SetCookie("token", token, 3600, "/", "localhost", false, true)
-		fmt.Println("Generated Token:", token)
 		c.Redirect(http.StatusFound, "/admin/dashboard")
 	}
-}
-func checkPassword(hashedPassword, password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-	return err == nil
 }
