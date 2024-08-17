@@ -1144,7 +1144,7 @@ func AdminDashboard(db *gorm.DB) gin.HandlerFunc {
 			TotalCars         int64
 		)
 
-		if err := db.Model(&domain.Vehicle{}).Where("price > ?", 5000000).Find(&AboveFiftyLakh).Error; err != nil {
+		if err := db.Preload("Brand").Model(&domain.Vehicle{}).Where("price > ?", 5000000).Find(&AboveFiftyLakh).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the above fifty lakh customer"})
 			return
 		}
