@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"ginapp/domain"
 	"ginapp/utils"
+	"html/template"
 	"math"
 	"net/http"
 	"os"
@@ -16,6 +18,79 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
+
+func AdminDashboard(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			AboveFiftyLakh    []domain.Vehicle
+			EnquiredCustomers []domain.Enquiry
+			PremiumCarsTotal  int64
+			MiniCarsTotal     int64
+			TotalCars         int64
+			brands            []domain.Brand
+			brandCounts       = make(map[string]int64)
+		)
+
+		if err := db.Preload("Brand").Model(&domain.Vehicle{}).Where("price > ?", 5000000).Find(&AboveFiftyLakh).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the above fifty lakh customer"})
+			return
+		}
+
+		if err := db.Find(&brands).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch the brands"})
+			return
+		}
+
+		if err := db.Find(&EnquiredCustomers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve enquired customers"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count total cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count premium cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count mini cars"})
+			return
+		}
+
+		for _, brand := range brands {
+			var count int64
+			if err := db.Model(&domain.Vehicle{}).Where("brand_id = ?", brand.ID).Count(&count).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count cars per brand"})
+				return
+			}
+			brandCounts[brand.Name] = count
+		}
+
+		// Convert brandCounts to JSON
+		brandCountsJSON, err := json.Marshal(brandCounts)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal brand counts"})
+			return
+		}
+
+		// Render the dashboard with the retrieved data
+		c.HTML(http.StatusOK, "dashboard.html", gin.H{
+			"enquiredcustomers": len(EnquiredCustomers),
+			"premiumcarstotal":  PremiumCarsTotal,
+			"minicarstotal":     MiniCarsTotal,
+			"totalcars":         TotalCars,
+			"abovefifty":        AboveFiftyLakh,
+			"brands":            brands,
+			"brandCounts":       brandCounts,
+			"brandCountsJ":      template.JS(brandCountsJSON), // Pass brandCounts as JSON
+			"CurrentPath":       c.Request.URL.Path,
+		})
+	}
+}
 
 func DeleteCustomerImage(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -110,7 +185,7 @@ func Gallery(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "customer image failed to get"})
 			return
 		}
-		c.HTML(http.StatusOK, "gallery.html", gin.H{"enquries": gallery})
+		c.HTML(http.StatusOK, "gallery.html", gin.H{"enquries": gallery, "CurrentPath": c.Request.URL.Path})
 
 	}
 }
@@ -255,12 +330,13 @@ func YoutubePage(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.HTML(http.StatusOK, "youtube.html", gin.H{
-			"Pages":      pages,
-			"Limit":      limit,
-			"totalCount": totalCount,
-			"totalPages": totalPages,
-			"Page":       page,
-			"enquries":   youtubelink,
+			"Pages":       pages,
+			"Limit":       limit,
+			"totalCount":  totalCount,
+			"totalPages":  totalPages,
+			"Page":        page,
+			"CurrentPath": c.Request.URL.Path,
+			"enquries":    youtubelink,
 		})
 
 	}
@@ -368,12 +444,13 @@ func Enquiry(db *gorm.DB) gin.HandlerFunc {
 		fmt.Println("HERE IS THE QNUER", enquires)
 		c.HTML(http.StatusOK, "enquiry.html", gin.H{
 
-			"enquries":   enquires,
-			"Page":       page,
-			"Pages":      pages,
-			"Limit":      limit,
-			"totalCount": totalCount,
-			"totalPages": totalPages,
+			"enquries":    enquires,
+			"Page":        page,
+			"CurrentPath": c.Request.URL.Path,
+			"Pages":       pages,
+			"Limit":       limit,
+			"totalCount":  totalCount,
+			"totalPages":  totalPages,
 		})
 
 	}
@@ -534,13 +611,14 @@ func BrandView(db *gorm.DB) gin.HandlerFunc {
 		noBrands := len(brands) == 0
 
 		c.HTML(http.StatusOK, "brand.html", gin.H{
-			"brands":     brands,
-			"totalCount": totalCount,
-			"Page":       page,
-			"noBrands":   noBrands,
-			"Limit":      limit,
-			"totalPages": totalPages,
-			"Pages":      pages,
+			"brands":      brands,
+			"totalCount":  totalCount,
+			"Page":        page,
+			"noBrands":    noBrands,
+			"Limit":       limit,
+			"totalPages":  totalPages,
+			"Pages":       pages,
+			"CurrentPath": c.Request.URL.Path, // Pass the current path to the template
 		})
 
 	}
@@ -722,15 +800,16 @@ func MiniCars(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.HTML(200, "MiniCars.html", gin.H{
-			"Cars":       cars,
-			"Brands":     brands,
-			"NoCars":     noCars,
-			"Page":       page,
-			"Pages":      pages,
-			"totalPages": totalPages,
-			"Limit":      limit,
-			"totalCount": totalCount,
-			"Nocars":     noCars,
+			"Cars":        cars,
+			"Brands":      brands,
+			"NoCars":      noCars,
+			"Page":        page,
+			"Pages":       pages,
+			"totalPages":  totalPages,
+			"CurrentPath": c.Request.URL.Path,
+			"Limit":       limit,
+			"totalCount":  totalCount,
+			"Nocars":      noCars,
 		})
 
 	}
@@ -966,6 +1045,7 @@ func EditPageMini(db *gorm.DB) gin.HandlerFunc {
 			"Car":           car,
 			"Brands":        brands,
 			"vehicle_types": VehicleTypes,
+			"CurrentPath":   c.Request.URL.Path,
 		})
 
 	}
@@ -1105,6 +1185,7 @@ func ProductPage(db *gorm.DB) gin.HandlerFunc {
 			"CarTypes":     carTypes,
 			"FuelTypes":    fuelTypes,
 			"Vehicle_type": VehicleType,
+			"CurrentPath":  c.Request.URL.Path,
 		})
 		fmt.Println("here is teh product")
 	}
@@ -1132,56 +1213,6 @@ func Adminlogin(c *gin.Context) {
 	}
 	// If there's no valid token, render the login page
 	c.HTML(http.StatusOK, "login.html", nil)
-}
-func AdminDashboard(db *gorm.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-
-		var (
-			AboveFiftyLakh    []domain.Vehicle
-			EnquiredCustomers []domain.Enquiry
-			PremiumCarsTotal  int64
-			MiniCarsTotal     int64
-			TotalCars         int64
-		)
-
-		if err := db.Preload("Brand").Model(&domain.Vehicle{}).Where("price > ?", 5000000).Find(&AboveFiftyLakh).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the above fifty lakh customer"})
-			return
-		}
-
-		// Retrieve enquired customers
-		if err := db.Find(&EnquiredCustomers).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve enquired customers"})
-			return
-		}
-
-		// Count total cars
-		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count total cars"})
-			return
-		}
-
-		// Count premium cars
-		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count premium cars"})
-			return
-		}
-
-		// Count mini cars
-		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count mini cars"})
-			return
-		}
-
-		// Render the dashboard with the retrieved data
-		c.HTML(http.StatusOK, "dashboard.html", gin.H{
-			"enquiredcustomers": len(EnquiredCustomers),
-			"premiumcarstotal":  PremiumCarsTotal,
-			"minicarstotal":     MiniCarsTotal,
-			"totalcars":         TotalCars,
-			"abovefifty":        AboveFiftyLakh,
-		})
-	}
 }
 
 func PremiumCars(db *gorm.DB) gin.HandlerFunc {
@@ -1232,14 +1263,15 @@ func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.HTML(200, "PremiumCars.html", gin.H{
-			"Cars":       cars,
-			"Brands":     brands,
-			"Page":       page,
-			"Pages":      pages,
-			"totalPages": totalPages,
-			"Limit":      limit,
-			"totalCount": totalCount,
-			"NoCars":     noCars,
+			"Cars":        cars,
+			"Brands":      brands,
+			"Page":        page,
+			"Pages":       pages,
+			"totalPages":  totalPages,
+			"Limit":       limit,
+			"totalCount":  totalCount,
+			"NoCars":      noCars,
+			"CurrentPath": c.Request.URL.Path,
 		})
 	}
 
