@@ -27,6 +27,7 @@ func AdminDashboard(db *gorm.DB) gin.HandlerFunc {
 			PremiumCarsTotal  int64
 			MiniCarsTotal     int64
 			TotalCars         int64
+			YoutubeVideoCount int64
 			brands            []domain.Brand
 			brandCounts       = make(map[string]int64)
 		)
@@ -48,6 +49,10 @@ func AdminDashboard(db *gorm.DB) gin.HandlerFunc {
 
 		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count total cars"})
+			return
+		}
+		if err := db.Model(&domain.YoutubeLink{}).Count(&YoutubeVideoCount).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count the youtube videos"})
 			return
 		}
 
@@ -88,6 +93,7 @@ func AdminDashboard(db *gorm.DB) gin.HandlerFunc {
 			"brandCounts":       brandCounts,
 			"brandCountsJ":      template.JS(brandCountsJSON), // Pass brandCounts as JSON
 			"CurrentPath":       c.Request.URL.Path,
+			"youtubecount":      YoutubeVideoCount,
 		})
 	}
 }
@@ -179,13 +185,41 @@ func AddCustomerImage(db *gorm.DB) gin.HandlerFunc {
 
 func Gallery(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var gallery []domain.CustomerImage
+		var (
+			gallery           []domain.CustomerImage
+			EnquiredCustomers []domain.Enquiry
+			PremiumCarsTotal  int64
+			MiniCarsTotal     int64
+			TotalCars         int64
+		)
 
 		if err := db.Find(&gallery).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "customer image failed to get"})
 			return
 		}
-		c.HTML(http.StatusOK, "gallery.html", gin.H{"enquries": gallery, "CurrentPath": c.Request.URL.Path})
+		if err := db.Find(&EnquiredCustomers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve enquired customers"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count total cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count premium cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count mini cars"})
+			return
+		}
+		c.HTML(http.StatusOK, "gallery.html", gin.H{"enquries": gallery, "CurrentPath": c.Request.URL.Path, "enquiredcustomers": len(EnquiredCustomers),
+			"premiumcarstotal": PremiumCarsTotal,
+			"minicarstotal":    MiniCarsTotal,
+			"totalcars":        TotalCars})
 
 	}
 }
@@ -298,11 +332,15 @@ func YoutubePage(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		var (
-			youtubelink []domain.YoutubeLink
-			page        int
-			limit       int
-			offset      int
-			totalCount  int64
+			youtubelink       []domain.YoutubeLink
+			page              int
+			limit             int
+			offset            int
+			totalCount        int64
+			EnquiredCustomers []domain.Enquiry
+			PremiumCarsTotal  int64
+			MiniCarsTotal     int64
+			TotalCars         int64
 		)
 		page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
 
@@ -318,6 +356,26 @@ func YoutubePage(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInsufficientStorage, gin.H{"error": "failed to the count"})
 		}
 
+		if err := db.Find(&EnquiredCustomers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve enquired customers"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count total cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count premium cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count mini cars"})
+			return
+		}
+
 		if err := db.Order("created_at desc").Limit(limit).Offset(offset).Find(&youtubelink).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed find the youtube link"})
 		}
@@ -330,13 +388,17 @@ func YoutubePage(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.HTML(http.StatusOK, "youtube.html", gin.H{
-			"Pages":       pages,
-			"Limit":       limit,
-			"totalCount":  totalCount,
-			"totalPages":  totalPages,
-			"Page":        page,
-			"CurrentPath": c.Request.URL.Path,
-			"enquries":    youtubelink,
+			"enquiredcustomers": len(EnquiredCustomers),
+			"premiumcarstotal":  PremiumCarsTotal,
+			"minicarstotal":     MiniCarsTotal,
+			"totalcars":         TotalCars,
+			"Pages":             pages,
+			"Limit":             limit,
+			"totalCount":        totalCount,
+			"totalPages":        totalPages,
+			"Page":              page,
+			"CurrentPath":       c.Request.URL.Path,
+			"enquries":          youtubelink,
 		})
 
 	}
@@ -411,11 +473,15 @@ func AddCustomer(db *gorm.DB) gin.HandlerFunc {
 func Enquiry(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
-			enquires   []domain.Enquiry
-			page       int
-			limit      int
-			offset     int
-			totalCount int64
+			enquires          []domain.Enquiry
+			page              int
+			limit             int
+			offset            int
+			totalCount        int64
+			EnquiredCustomers []domain.Enquiry
+			PremiumCarsTotal  int64
+			MiniCarsTotal     int64
+			TotalCars         int64
 		)
 
 		page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -432,6 +498,25 @@ func Enquiry(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get the data"})
 			return
 		}
+		if err := db.Find(&EnquiredCustomers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve enquired customers"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count total cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count premium cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count mini cars"})
+			return
+		}
 		fmt.Println("here is the totalcount", totalCount)
 		totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
 		pages := make([]int, totalPages)
@@ -443,14 +528,17 @@ func Enquiry(db *gorm.DB) gin.HandlerFunc {
 
 		fmt.Println("HERE IS THE QNUER", enquires)
 		c.HTML(http.StatusOK, "enquiry.html", gin.H{
-
-			"enquries":    enquires,
-			"Page":        page,
-			"CurrentPath": c.Request.URL.Path,
-			"Pages":       pages,
-			"Limit":       limit,
-			"totalCount":  totalCount,
-			"totalPages":  totalPages,
+			"enquiredcustomers": len(EnquiredCustomers),
+			"premiumcarstotal":  PremiumCarsTotal,
+			"minicarstotal":     MiniCarsTotal,
+			"totalcars":         TotalCars,
+			"enquries":          enquires,
+			"Page":              page,
+			"CurrentPath":       c.Request.URL.Path,
+			"Pages":             pages,
+			"Limit":             limit,
+			"totalCount":        totalCount,
+			"totalPages":        totalPages,
 		})
 
 	}
@@ -572,11 +660,16 @@ func BrandEdit(db *gorm.DB) gin.HandlerFunc {
 func BrandView(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
-			brands     []domain.Brand
-			totalCount int64
-			page       int
-			limit      int
-			offset     int
+			brands            []domain.Brand
+			totalCount        int64
+			page              int
+			limit             int
+			offset            int
+			PremiumCarsTotal  int64
+			MiniCarsTotal     int64 //newone
+			TotalCars         int64 //newone
+			YoutubeVideoCount int64
+			EnquiredCustomers []domain.Enquiry
 		)
 
 		page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -594,12 +687,36 @@ func BrandView(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the count"})
 			return
 		}
-
 		if err := db.Order("created_at desc").Limit(limit).Offset(offset).Find(&brands).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch the brands"})
 
 			return
 		}
+
+		if err := db.Find(&EnquiredCustomers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the customers"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get the premium cars"})
+			return
+		}
+
+		if err := db.Model(&domain.YoutubeLink{}).Count(&YoutubeVideoCount).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get the totalcount"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get the mini cars"})
+			return
+		}
+		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get the total count of the cars"})
+			return
+		}
+
 		totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
 		pages := make([]int, totalPages)
 
@@ -611,14 +728,19 @@ func BrandView(db *gorm.DB) gin.HandlerFunc {
 		noBrands := len(brands) == 0
 
 		c.HTML(http.StatusOK, "brand.html", gin.H{
-			"brands":      brands,
-			"totalCount":  totalCount,
-			"Page":        page,
-			"noBrands":    noBrands,
-			"Limit":       limit,
-			"totalPages":  totalPages,
-			"Pages":       pages,
-			"CurrentPath": c.Request.URL.Path, // Pass the current path to the template
+			"enquiredcustomers": len(EnquiredCustomers),
+			"premiumcarstotal":  PremiumCarsTotal,
+			"minicarstotal":     MiniCarsTotal,
+			"totalcars":         TotalCars,
+			"brands":            brands,
+			"totalCount":        totalCount,
+			"Page":              page,
+			"noBrands":          noBrands,
+			"Limit":             limit,
+			"totalPages":        totalPages,
+			"youtubecount":      YoutubeVideoCount,
+			"Pages":             pages,
+			"CurrentPath":       c.Request.URL.Path, // Pass the current path to the template
 		})
 
 	}
@@ -755,12 +877,16 @@ func MiniCars(db *gorm.DB) gin.HandlerFunc {
 		fmt.Println("here is the mini cars come on")
 
 		var (
-			cars       []domain.Vehicle
-			brands     []domain.Brand
-			totalCount int64
-			limit      int
-			offset     int
-			page       int
+			cars              []domain.Vehicle
+			brands            []domain.Brand
+			totalCount        int64
+			limit             int
+			offset            int
+			page              int
+			EnquiredCustomers []domain.Enquiry
+			PremiumCarsTotal  int64
+			MiniCarsTotal     int64
+			TotalCars         int64
 		)
 
 		page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -776,8 +902,28 @@ func MiniCars(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&totalCount).Error; err != nil {
+		if err := db.Find(&brands).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get the brands"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find  the total cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the vehicle"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type=?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get the premium cars"})
+			return
+		}
+
+		if err := db.Find(&EnquiredCustomers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get the enquired customers"})
 			return
 		}
 
@@ -800,16 +946,20 @@ func MiniCars(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.HTML(200, "MiniCars.html", gin.H{
-			"Cars":        cars,
-			"Brands":      brands,
-			"NoCars":      noCars,
-			"Page":        page,
-			"Pages":       pages,
-			"totalPages":  totalPages,
-			"CurrentPath": c.Request.URL.Path,
-			"Limit":       limit,
-			"totalCount":  totalCount,
-			"Nocars":      noCars,
+			"enquiredcustomers": len(EnquiredCustomers),
+			"premiumcarstotal":  PremiumCarsTotal,
+			"minicarstotal":     MiniCarsTotal,
+			"totalcars":         TotalCars,
+			"Cars":              cars,
+			"Brands":            brands,
+			"NoCars":            noCars,
+			"Page":              page,
+			"Pages":             pages,
+			"totalPages":        totalPages,
+			"CurrentPath":       c.Request.URL.Path,
+			"Limit":             limit,
+			"totalCount":        totalCount,
+			"Nocars":            noCars,
 		})
 
 	}
@@ -962,8 +1112,14 @@ func deleteFile(filepath string) error {
 func EditPage(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id") // fetching the id from the url
-		var car domain.Vehicle
-		var brands []domain.Brand
+		var (
+			car               domain.Vehicle
+			brands            []domain.Brand
+			EnquiredCustomers []domain.Enquiry
+			PremiumCarsTotal  int64
+			MiniCarsTotal     int64
+			TotalCars         int64
+		)
 
 		if err := db.Preload("Images").Preload("Brand").First(&car, id).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch the id"})
@@ -971,6 +1127,25 @@ func EditPage(db *gorm.DB) gin.HandlerFunc {
 
 		if err := db.Find(&brands).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch the car"})
+			return
+		}
+		if err := db.Find(&EnquiredCustomers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve enquired customers"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count total cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count premium cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count mini cars"})
 			return
 		}
 
@@ -995,11 +1170,15 @@ func EditPage(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.HTML(http.StatusOK, "edit_premium.html", gin.H{
-			"fuel_types":    FuelTypes,
-			"car_types":     CarTypes,
-			"Car":           car,
-			"Brands":        brands,
-			"vehicle_types": VehicleTypes,
+			"enquiredcustomers": len(EnquiredCustomers),
+			"premiumcarstotal":  PremiumCarsTotal,
+			"minicarstotal":     MiniCarsTotal,
+			"totalcars":         TotalCars,
+			"fuel_types":        FuelTypes,
+			"car_types":         CarTypes,
+			"Car":               car,
+			"Brands":            brands,
+			"vehicle_types":     VehicleTypes,
 		})
 
 	}
@@ -1007,8 +1186,14 @@ func EditPage(db *gorm.DB) gin.HandlerFunc {
 func EditPageMini(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id") // fetching the id from the url
-		var car domain.Vehicle
-		var brands []domain.Brand
+		var (
+			car               domain.Vehicle
+			brands            []domain.Brand
+			EnquiredCustomers []domain.Enquiry
+			PremiumCarsTotal  int64
+			MiniCarsTotal     int64
+			TotalCars         int64
+		)
 
 		if err := db.Preload("Images").Preload("Brand").First(&car, id).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch the id"})
@@ -1016,6 +1201,25 @@ func EditPageMini(db *gorm.DB) gin.HandlerFunc {
 
 		if err := db.Find(&brands).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch the car"})
+			return
+		}
+		if err := db.Find(&EnquiredCustomers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve enquired customers"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count total cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count premium cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count mini cars"})
 			return
 		}
 
@@ -1040,12 +1244,16 @@ func EditPageMini(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.HTML(http.StatusOK, "edit_mini.html", gin.H{
-			"fuel_types":    FuelTypes,
-			"car_types":     CarTypes,
-			"Car":           car,
-			"Brands":        brands,
-			"vehicle_types": VehicleTypes,
-			"CurrentPath":   c.Request.URL.Path,
+			"enquiredcustomers": len(EnquiredCustomers),
+			"premiumcarstotal":  PremiumCarsTotal,
+			"minicarstotal":     MiniCarsTotal,
+			"totalcars":         TotalCars,
+			"fuel_types":        FuelTypes,
+			"car_types":         CarTypes,
+			"Car":               car,
+			"Brands":            brands,
+			"vehicle_types":     VehicleTypes,
+			"CurrentPath":       c.Request.URL.Path,
 		})
 
 	}
@@ -1155,7 +1363,13 @@ func ProductPage(db *gorm.DB) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
-		var brands []domain.Brand
+		var (
+			brands            []domain.Brand
+			EnquiredCustomers []domain.Enquiry
+			PremiumCarsTotal  int64
+			MiniCarsTotal     int64
+			TotalCars         int64
+		)
 		if err := db.Find(&brands).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the brand"})
 		}
@@ -1179,13 +1393,36 @@ func ProductPage(db *gorm.DB) gin.HandlerFunc {
 			domain.CarCategoryPremium,
 			domain.CarCategoryMini,
 		}
+		if err := db.Find(&EnquiredCustomers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve enquired customers"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count total cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count premium cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count mini cars"})
+			return
+		}
 
 		c.HTML(http.StatusOK, "product.html", gin.H{
-			"Brands":       brands,
-			"CarTypes":     carTypes,
-			"FuelTypes":    fuelTypes,
-			"Vehicle_type": VehicleType,
-			"CurrentPath":  c.Request.URL.Path,
+			"enquiredcustomers": len(EnquiredCustomers),
+			"premiumcarstotal":  PremiumCarsTotal,
+			"minicarstotal":     MiniCarsTotal,
+			"totalcars":         TotalCars,
+			"Brands":            brands,
+			"CarTypes":          carTypes,
+			"FuelTypes":         fuelTypes,
+			"Vehicle_type":      VehicleType,
+			"CurrentPath":       c.Request.URL.Path,
 		})
 		fmt.Println("here is teh product")
 	}
@@ -1218,12 +1455,16 @@ func Adminlogin(c *gin.Context) {
 func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
-			cars       []domain.Vehicle
-			brands     []domain.Brand
-			page       int
-			totalCount int64
-			limit      int
-			offset     int
+			cars              []domain.Vehicle
+			brands            []domain.Brand
+			page              int
+			totalCount        int64
+			limit             int
+			offset            int
+			EnquiredCustomers []domain.Enquiry
+			PremiumCarsTotal  int64
+			MiniCarsTotal     int64
+			TotalCars         int64
 		)
 
 		page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -1240,6 +1481,26 @@ func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 			return
 
 		}
+		if err := db.Find(&EnquiredCustomers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get the enquired customers"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type=?", "Mini").Count(&MiniCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get the mini cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type=?", "Premium").Count(&PremiumCarsTotal).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get the premium cars"})
+			return
+		}
+
+		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get the total cars"})
+			return
+		}
+
 		if err := db.Model(&domain.Vehicle{}).Where("vehicle_type = ?", "Premium").Count(&totalCount).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch the total count of premium cars"})
 			return
@@ -1263,15 +1524,19 @@ func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.HTML(200, "PremiumCars.html", gin.H{
-			"Cars":        cars,
-			"Brands":      brands,
-			"Page":        page,
-			"Pages":       pages,
-			"totalPages":  totalPages,
-			"Limit":       limit,
-			"totalCount":  totalCount,
-			"NoCars":      noCars,
-			"CurrentPath": c.Request.URL.Path,
+			"enquiredcustomers": len(EnquiredCustomers),
+			"premiumcarstotal":  PremiumCarsTotal,
+			"minicarstotal":     MiniCarsTotal,
+			"totalcars":         TotalCars,
+			"Cars":              cars,
+			"Brands":            brands,
+			"Page":              page,
+			"Pages":             pages,
+			"totalPages":        totalPages,
+			"Limit":             limit,
+			"totalCount":        totalCount,
+			"NoCars":            noCars,
+			"CurrentPath":       c.Request.URL.Path,
 		})
 	}
 
