@@ -10,6 +10,58 @@ import (
 	"gorm.io/gorm"
 )
 
+func GetBannerDetails(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var cars []domain.Vehicle
+		if err := db.Order("created_at desc").Limit(5).Preload("Brand").Preload("Images").Find(&cars).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch tha database"})
+			return
+
+		}
+
+		// Create a structure to hold the response data
+		type CarDetail struct {
+			BannerImage string `json:"bannerImage"`
+			Brand       string `json:"brand"`
+			Id          int    `json:"id"`
+			Cartype     string `json:"car_type"`
+
+			Year    int    `json:"year"`
+			Model   string `json:"model"`
+			Variant string `json:"variant"`
+			Price   int    `json:"price"`
+			Color   string `json:"color"`
+		}
+
+		var carDetails []CarDetail
+
+		for _, car := range cars {
+
+			var bannerImage string
+
+			if len(car.Images) > 0 {
+				bannerImage = car.Images[0].Path
+
+			}
+
+			carDetail := CarDetail{
+				BannerImage: bannerImage,
+				Model:       car.Model,
+				Variant:     car.Variant,
+				Price:       car.Price,
+				Color:       car.Color,
+				Cartype:     car.CarType,
+				Brand:       car.Brand.Name,
+				Year:        int(car.Year),
+				Id:          int(car.ID),
+			}
+			carDetails = append(carDetails, carDetail)
+			fmt.Println("Car details:", carDetail)
+		}
+
+		c.JSON(http.StatusOK, gin.H{"status": "success", "carDetails": carDetails})
+	}
+}
 func Get_YoutubeLink(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
@@ -219,7 +271,7 @@ func GetPremiumCarsAll(db *gorm.DB) gin.HandlerFunc {
 			ID           uint   `json:"id"`
 			Brand        string `json:"brand"`
 			Model        string `json:"model"`
-			Year         int    `json:"int"`
+			Year         int    `json:"year"`
 			Color        string `json:"color"`
 			Variant      string `json:"variant"`
 			CarType      string `json:"car_type"`
@@ -229,7 +281,7 @@ func GetPremiumCarsAll(db *gorm.DB) gin.HandlerFunc {
 			Transmission string `json:"transmission"`
 			RegNo        string `json:"reg_no"`
 			Status       string `json:"status"`
-			Price        int    `json:"int"`
+			Price        int    `json:"price"`
 			Image        string `json:"image"`
 		}
 
@@ -281,7 +333,7 @@ func GetMiniCarsAll(db *gorm.DB) gin.HandlerFunc {
 			ID           uint   `json:"id"`
 			Brand        string `json:"brand"`
 			Model        string `json:"model"`
-			Year         int    `json:"int"`
+			Year         int    `json:"year"`
 			Color        string `json:"color"`
 			Variant      string `json:"variant"`
 			CarType      string `json:"car_type"`
@@ -291,7 +343,7 @@ func GetMiniCarsAll(db *gorm.DB) gin.HandlerFunc {
 			Transmission string `json:"transmission"`
 			RegNo        string `json:"reg_no"`
 			Status       string `json:"status"`
-			Price        int    `json:"int"`
+			Price        int    `json:"price"`
 			Image        string `json:"image"`
 		}
 
@@ -344,7 +396,7 @@ func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 			ID           uint   `json:"id"`
 			Brand        string `json:"brand"`
 			Model        string `json:"model"`
-			Year         int    `json:"int"`
+			Year         int    `json:"year"`
 			Color        string `json:"color"`
 			Variant      string `json:"variant"`
 			CarType      string `json:"car_type"`
@@ -354,7 +406,7 @@ func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 			Transmission string `json:"transmission"`
 			RegNo        string `json:"reg_no"`
 			Status       string `json:"status"`
-			Price        int    `json:"int"`
+			Price        int    `json:"price"`
 			Image        string `json:"image"`
 		}
 		var result []CarWithImage

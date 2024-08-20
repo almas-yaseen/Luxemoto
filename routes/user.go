@@ -18,4 +18,5 @@ func UserRoutes(myapp *gin.RouterGroup, db *gorm.DB) {
 	myapp.GET("/get_filter_types", handlers.GetFilterTypes(db))
 	myapp.GET("/get_youtube_links", handlers.Get_YoutubeLink(db))
 	myapp.GET("/get_all_delivery", handlers.GetAllDelivery(db))
+	myapp.GET("/get_banner_details", handlers.GetBannerDetails(db))
 }
