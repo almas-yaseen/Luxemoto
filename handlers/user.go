@@ -442,3 +442,37 @@ func CustomerImages(db *gorm.DB) gin.HandlerFunc {
 
 	}
 }
+
+func GetAllDelivery(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var (
+			CustomerImages []domain.CustomerImage
+			page           int
+			limit          int
+			totalCount     int64
+			offset         int
+		)
+
+		page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
+		if page < 1 {
+			page = 1
+		}
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "5"))
+
+		offset = (page - 1) * limit
+
+		if err := db.Model(&domain.CustomerImage{}).Count(&totalCount).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to  find the image"})
+			return
+		}
+
+		if err := db.Limit(limit).Offset(offset).Find(&CustomerImages).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the customer images"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"CustomerImages": CustomerImages, "TotalCount": totalCount})
+
+	}
+}
