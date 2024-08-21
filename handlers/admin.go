@@ -284,7 +284,7 @@ func Profile(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the user"})
 			return
 		}
-		c.HTML(http.StatusOK, "profile.html", gin.H{"user": user})
+		c.HTML(http.StatusOK, "profile.html", gin.H{"user": user, "CurrentPath": c.Request.URL.Path})
 
 	}
 }
