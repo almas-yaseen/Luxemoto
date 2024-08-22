@@ -96,9 +96,9 @@ func Get_YoutubeLink(db *gorm.DB) gin.HandlerFunc {
 func GetFilterTypes(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var filtertypes struct {
-			CarTypes  []string
-			FuelTypes []string
-			Brands    []string
+			CarTypes  []string `json:"car_types"`
+			FuelTypes []string `json:"fuel_types"`
+			Brands    []string `json:"brands"`
 		}
 
 		var brands []domain.Brand // getting the values
@@ -110,7 +110,8 @@ func GetFilterTypes(db *gorm.DB) gin.HandlerFunc {
 
 		// Extract only the brand names
 		for _, brand := range brands {
-			filtertypes.Brands = append(filtertypes.Brands, brand.Name)
+			filtertypes.Brands = append(filtertypes.Brands, brand.Name) //id
+			fmt.Println("here is the brands")
 		}
 
 		filtertypes.CarTypes = []string{
