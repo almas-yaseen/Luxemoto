@@ -130,7 +130,7 @@ func GetFilterTypes(db *gorm.DB) gin.HandlerFunc {
 			domain.FuelTypeHybrid,
 		}
 
-		c.JSON(http.StatusOK, gin.H{"filtertypes": filtertypes})
+		c.JSON(http.StatusOK, filtertypes)
 	}
 }
 
