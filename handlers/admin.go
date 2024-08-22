@@ -789,6 +789,7 @@ func EditCarMini(db *gorm.DB) gin.HandlerFunc {
 		if err == nil {
 
 			files := form.File["images[]"]
+			fmt.Println("here is the mini images", files)
 			var newImages []domain.Image
 
 			for _, file := range files {
