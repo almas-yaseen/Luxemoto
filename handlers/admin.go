@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"ginapp/domain"
+	"ginapp/services"
 	"ginapp/utils"
 	"html/template"
+	"log"
 	"math"
 	"net/http"
 	"os"
@@ -1009,6 +1011,7 @@ func EditCar(db *gorm.DB) gin.HandlerFunc {
 
 		if err == nil {
 
+			fmt.Println("here is the form", form)
 			files := form.File["images[]"]
 			var newImages []domain.Image
 
@@ -1281,17 +1284,22 @@ func GetChoices(c *gin.Context) {
 
 }
 
-func AddProduct(db *gorm.DB) gin.HandlerFunc {
+// WhatsAppClient handles sending WhatsApp messages via an API
+
+// SendMessage sends a WhatsApp message to the specified number
+
+// AddProduct handles adding a new vehicle and notifying customers
+func AddProduct(db *gorm.DB, whatsappClient *services.WhatsAppClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var vehicle domain.Vehicle
 		var brand domain.Brand
 		var images []domain.Image
 
+		// Parse and validate form data
 		BrandIDStr := c.PostForm("brand")
-		fmt.Println("here is the brand str", BrandIDStr)
 		brandID, err := strconv.ParseUint(BrandIDStr, 10, 64)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid brand id"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid brand ID"})
 			return
 		}
 
@@ -1299,11 +1307,12 @@ func AddProduct(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Brand not found"})
 			return
 		}
+
 		vehicle.BrandID = uint(brandID)
 		vehicle.Model = c.PostForm("model")
 		year, err := strconv.Atoi(c.PostForm("year"))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid year"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid year"})
 			return
 		}
 		vehicle.Year = year
@@ -1322,42 +1331,71 @@ func AddProduct(db *gorm.DB) gin.HandlerFunc {
 		vehicle.Insurance_date = c.PostForm("insurance_date")
 		vehicle.Location = c.PostForm("location")
 
+		// Handle file uploads
 		form, err := c.MultipartForm()
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "failed to get the form"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to get the form"})
 			return
 		}
 		files := form.File["images[]"]
-
-		fmt.Println("here is the files", files)
 
 		for _, file := range files {
 			filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), file.Filename)
 			uploadPath := filepath.Join("uploads", filename)
 			if err := c.SaveUploadedFile(file, uploadPath); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save an image"})
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image"})
 				return
 			}
 			imagePath := "/" + strings.ReplaceAll(uploadPath, "\\", "/")
 			images = append(images, domain.Image{Path: imagePath})
-
 		}
 		vehicle.Images = images
 
+		// Add vehicle to the database
 		if err := db.Create(&vehicle).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the car"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add the car"})
 			return
 		}
 
-		if err := db.Preload("Brand").First(&vehicle, vehicle.ID).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to load the car brand"})
+		// Find enquiries matching this vehicle model
+		var enquiries []domain.Enquiry
+		if err := db.Where("desired_cars LIKE ?", fmt.Sprintf("%%%s%%", vehicle.Model)).Find(&enquiries).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find matching enquiries"})
 			return
+		}
+
+		// Create channels for concurrent processing
+		messageChannel := make(chan string, len(enquiries))
+		errorChannel := make(chan error, len(enquiries))
+		defer close(messageChannel)
+		defer close(errorChannel)
+
+		// Send WhatsApp messages concurrently
+		for _, enquiry := range enquiries {
+			go func(enquiry domain.Enquiry) {
+				phoneStr := strconv.Itoa(enquiry.Phone)
+				message := fmt.Sprintf("Hello %s, the vehicle %s that you enquired about is now available. Please visit our showroom or contact us for more details.", enquiry.CustomerName, vehicle.Model)
+				err := whatsappClient.SendMessage(phoneStr, message)
+				if err != nil {
+					errorChannel <- fmt.Errorf("Failed to send message to %s: %v", enquiry.Phone, err)
+				} else {
+					messageChannel <- fmt.Sprintf("Successfully sent message to %s", enquiry.Phone)
+				}
+			}(enquiry)
+		}
+
+		// Collect results from the channels
+		for i := 0; i < len(enquiries); i++ {
+			select {
+			case msg := <-messageChannel:
+				log.Println(msg)
+			case err := <-errorChannel:
+				log.Println(err)
+			}
 		}
 
 		c.Redirect(http.StatusSeeOther, "/admin/product")
-
 	}
-
 }
 
 func ProductPage(db *gorm.DB) gin.HandlerFunc {

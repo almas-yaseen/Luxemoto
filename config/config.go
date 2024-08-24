@@ -6,15 +6,18 @@ import (
 )
 
 type Config struct {
-	DBHost     string `mapstructure:"DB_HOST"`
-	DBName     string `mapstructure:"DB_NAME"`
-	DBUser     string `mapstructure:"DB_USER"`
-	DBPort     string `mapstructure:"DB_PORT"`
-	DBPassword string `mapstructure:"DB_PASSWORD"`
+	DBHost        string `mapstructure:"DB_HOST"`
+	DBName        string `mapstructure:"DB_NAME"`
+	DBUser        string `mapstructure:"DB_USER"`
+	DBPort        string `mapstructure:"DB_PORT"`
+	DBPassword    string `mapstructure:"DB_PASSWORD"`
+	WhatsAppSID   string `mapstructure:"WHATSAPP_SID" validate:"required"`
+	WhatsAppToken string `mapstructure:"WHATSAPP_TOKEN" validate:"required"`
+	WhatsAppFrom  string `mapstructure:"WHATSAPP_FROM" validate:"required"`
 }
 
 var envs = []string{
-	"DB_HOST", "DB_PORT", "DB_PASSWORD", "DB_NAME", "DB_USER",
+	"DB_HOST", "DB_PORT", "DB_PASSWORD", "DB_NAME", "DB_USER", "WHATSAPP_SID", "WHATSAPP_TOKEN", "WHATSAPP_FROM",
 }
 
 func LoadConfig() (Config, error) {
