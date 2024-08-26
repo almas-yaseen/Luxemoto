@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Custom template functions
@@ -32,8 +33,24 @@ func toJSON(v interface{}) template.HTML {
 	return template.HTML(bytes)
 }
 
+// Load configuration
+func HashPassword(password string) (string, error) {
+
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(bytes), err
+}
+
 func main() {
-	// Load configuration
+
+	password := "almas"
+	hashsedPassword, err := HashPassword(password)
+
+	if err != nil {
+		log.Fatalf("Failed hash password %v", err)
+	}
+
+	fmt.Println("here is the hashed password", hashsedPassword)
+
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Error loading the config: %v", err)
