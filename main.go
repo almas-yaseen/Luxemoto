@@ -42,7 +42,7 @@ func HashPassword(password string) (string, error) {
 
 func main() {
 
-	password := "almas"
+	password := "jacky"
 	hashsedPassword, err := HashPassword(password)
 
 	if err != nil {

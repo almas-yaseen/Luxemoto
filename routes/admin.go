@@ -19,7 +19,6 @@ func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB, whatsappClient *services.W
 		admin.POST("/logout", handlers.Logout)
 		admin.GET("/get_choices", handlers.GetChoices)
 		admin.GET("/dashboard", handlers.AdminDashboard(db))
-
 		//product
 		admin.GET("/product", handlers.ProductPage(db))
 		admin.POST("/add_product", handlers.AddProduct(db, whatsappClient))
