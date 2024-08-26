@@ -1489,8 +1489,9 @@ func Logout(c *gin.Context) {
 func Adminlogin(c *gin.Context) {
 	// Check for the presence of a token
 	token, err := c.Cookie("token")
-	fmt.Println("here is the login token", token)
+	fmt.Println("here is the login token come on", token)
 	if err == nil && token != "" {
+
 		// Validate the token
 		valid, _ := utils.ValidateToken(token)
 		fmt.Println("here is the valid", valid)
@@ -1614,6 +1615,7 @@ func AdminLogin(db *gorm.DB) gin.HandlerFunc {
 
 		// Password matched, proceed to login
 		token, err := utils.GenerateToken(user.Email)
+		fmt.Println("almas almas almas", token)
 		if err != nil {
 			fmt.Println("Error generating token:", err)
 			c.HTML(http.StatusInternalServerError, "login.html", gin.H{"error": "token error"})
