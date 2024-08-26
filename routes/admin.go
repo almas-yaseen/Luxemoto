@@ -11,7 +11,7 @@ import (
 
 func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB, whatsappClient *services.WhatsAppClient) *gin.RouterGroup {
 
-	admin.GET("", handlers.Adminlogin)
+	admin.GET("/login", handlers.Adminlogin)
 	admin.POST("/login", handlers.AdminLogin(db))
 	admin.Use(middleware.AdminAuthMiddleware(db))
 	{
@@ -19,6 +19,7 @@ func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB, whatsappClient *services.W
 		admin.POST("/logout", handlers.Logout)
 		admin.GET("/get_choices", handlers.GetChoices)
 		admin.GET("/dashboard", handlers.AdminDashboard(db))
+
 		//product
 		admin.GET("/product", handlers.ProductPage(db))
 		admin.POST("/add_product", handlers.AddProduct(db, whatsappClient))

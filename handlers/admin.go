@@ -1483,7 +1483,7 @@ func ProductPage(db *gorm.DB) gin.HandlerFunc {
 
 func Logout(c *gin.Context) {
 	c.SetCookie("token", "", -1, "/", "localhost", false, true)
-	c.Redirect(http.StatusFound, "/admin")
+	c.Redirect(http.StatusFound, "/admin/login")
 }
 
 func Adminlogin(c *gin.Context) {
