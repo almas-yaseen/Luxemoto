@@ -15,6 +15,11 @@
 
 <body>
   <h1>Login</h1>
+  {{if .error}}
+  <div class="alert alert-danger" role="alert">
+    {{.error}}
+  </div>
+  {{end}}
   <form action="/admin/login" method="post">
     <div class="row">
       <label for="email">Email</label>
