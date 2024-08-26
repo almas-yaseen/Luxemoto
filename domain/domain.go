@@ -64,6 +64,7 @@ type Vehicle struct {
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 	Engine_size    string    `json:"engine_size"`
+	BannerImage    string    `json:"banner_image"`
 	Insurance_date string    `json:"insurance_dating"`
 	Location       string    `json:"location"`
 }

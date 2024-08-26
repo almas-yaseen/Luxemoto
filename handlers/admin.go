@@ -1338,6 +1338,18 @@ func AddProduct(db *gorm.DB, whatsappClient *services.WhatsAppClient) gin.Handle
 			return
 		}
 		files := form.File["images[]"]
+		bannerImage, err := c.FormFile("bannerImage")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add banner image"})
+			return
+		}
+		bannerImagePath := filepath.Join("uploads", fmt.Sprintf("%d_%s", time.Now().UnixNano(), bannerImage.Filename))
+
+		if err := c.SaveUploadedFile(bannerImage, bannerImagePath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save the banner image"})
+			return
+		}
+		vehicle.BannerImage = "/" + strings.ReplaceAll(bannerImagePath, "\\", "/")
 
 		for _, file := range files {
 			filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), file.Filename)
@@ -1366,6 +1378,7 @@ func AddProduct(db *gorm.DB, whatsappClient *services.WhatsAppClient) gin.Handle
 
 		// Create channels for concurrent processing
 		messageChannel := make(chan string, len(enquiries))
+		fmt.Println("this is almas", messageChannel)
 		errorChannel := make(chan error, len(enquiries))
 		defer close(messageChannel)
 		defer close(errorChannel)

@@ -6,14 +6,14 @@ import (
 )
 
 type Config struct {
-	DBHost        string `mapstructure:"DB_HOST"`
-	DBName        string `mapstructure:"DB_NAME"`
-	DBUser        string `mapstructure:"DB_USER"`
-	DBPort        string `mapstructure:"DB_PORT"`
-	DBPassword    string `mapstructure:"DB_PASSWORD"`
-	WhatsAppSID   string `mapstructure:"WHATSAPP_SID" validate:"required"`
-	WhatsAppToken string `mapstructure:"WHATSAPP_TOKEN" validate:"required"`
-	WhatsAppFrom  string `mapstructure:"WHATSAPP_FROM" validate:"required"`
+	DBHost     string `mapstructure:"DB_HOST"`
+	DBName     string `mapstructure:"DB_NAME"`
+	DBUser     string `mapstructure:"DB_USER"`
+	DBPort     string `mapstructure:"DB_PORT"`
+	DBPassword string `mapstructure:"DB_PASSWORD"`
+	// WhatsAppSID   string `mapstructure:"WHATSAPP_SID" validate:"required"`
+	// WhatsAppToken string `mapstructure:"WHATSAPP_TOKEN" validate:"required"`
+	// WhatsAppFrom  string `mapstructure:"WHATSAPP_FROM" validate:"required"`
 }
 
 var envs = []string{
