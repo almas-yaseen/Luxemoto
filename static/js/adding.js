@@ -31,7 +31,8 @@ document.getElementById('imageInputsContainer').addEventListener('change', funct
         
         // Clear previous preview
         previewContainer.innerHTML = '';
-
+console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",files.length)
+console.log("FILESSSSSSSSSSSSSSSSSSSSSSSS",files)
         // Display the new image
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
