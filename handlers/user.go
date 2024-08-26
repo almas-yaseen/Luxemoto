@@ -487,7 +487,7 @@ func CustomerImages(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"CustomerImages": CustomerImages, "TotalCount": totalCount})
+		c.JSON(http.StatusOK, gin.H{"images": CustomerImages, "TotalCount": totalCount})
 
 	}
 }

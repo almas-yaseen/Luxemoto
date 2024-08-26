@@ -17,7 +17,7 @@ func AdminAuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 		fmt.Println("here is the token string", tokenString)
 
 		if err != nil {
-			c.Redirect(http.StatusFound, "/admin/login")
+			c.Redirect(http.StatusFound, "/admin")
 			c.Abort()
 			return
 
@@ -25,20 +25,20 @@ func AdminAuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 		token, err := utils.ParseToken(tokenString)
 
 		if err != nil || !token.Valid {
-			c.Redirect(http.StatusFound, "/admin/login")
+			c.Redirect(http.StatusFound, "/admin")
 			c.Abort()
 			return
 		}
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			c.Redirect(http.StatusFound, "/admin/login")
+			c.Redirect(http.StatusFound, "/admin")
 			c.Abort()
 			return
 		}
 		var user domain.User
 
 		if err := db.Where("email=?", claims["email"]).First(&user).Error; err != nil {
-			c.Redirect(http.StatusFound, "/admin/login")
+			c.Redirect(http.StatusFound, "/admin")
 			c.Abort()
 			return
 		}
