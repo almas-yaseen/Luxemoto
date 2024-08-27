@@ -22,6 +22,7 @@ import (
 )
 
 func AdminDashboard(db *gorm.DB) gin.HandlerFunc {
+
 	return func(c *gin.Context) {
 		var (
 			AboveFiftyLakh    []domain.Vehicle
@@ -33,6 +34,9 @@ func AdminDashboard(db *gorm.DB) gin.HandlerFunc {
 			brands            []domain.Brand
 			brandCounts       = make(map[string]int64)
 		)
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 
 		if err := db.Preload("Brand").Model(&domain.Vehicle{}).Where("price > ?", 5000000).Find(&AboveFiftyLakh).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to add the above fifty lakh customer"})
@@ -1482,13 +1486,33 @@ func ProductPage(db *gorm.DB) gin.HandlerFunc {
 }
 
 func Logout(c *gin.Context) {
-	c.SetCookie("token", "", -1, "/", "localhost", false, true)
+	// Deleting the cookie by setting its expiration to a past time
+	c.Header("Cache-Control", "no-store")
+	c.Header("Pragma", "no-cache")
+	c.Header("Expires", "0")
+
+	c.SetCookie("token", "", -1, "/", "", false, true)
+	fmt.Println("COME ON EVERY BODY")
+
+	// Check the cookie value after attempting to delete it
+	token, err := c.Cookie("token")
+	if err != nil {
+		fmt.Println("Token deleted successfully:", err)
+	} else {
+		fmt.Println("Failed to delete token, still present:", token)
+	}
+
+	// Redirect to login page after logout
 	c.Redirect(http.StatusFound, "/admin/login")
 }
 
 func Adminlogin(c *gin.Context) {
+	c.Header("Cache-Control", "no-cache,no-store,must-revalidate")
+	c.Header("Expires", "0")
+
 	// Check for the presence of a token
 	token, err := c.Cookie("token")
+	fmt.Println("here is the token")
 	fmt.Println("here is the login token come on", token)
 	if err == nil && token != "" {
 
@@ -1496,6 +1520,7 @@ func Adminlogin(c *gin.Context) {
 		valid, _ := utils.ValidateToken(token)
 		fmt.Println("here is the valid", valid)
 		if valid {
+			fmt.Print("yes it is valid dudde")
 			// If the token is valid, redirect to the dashboard
 			c.Redirect(http.StatusFound, "/admin/dashboard")
 			return
@@ -1594,35 +1619,43 @@ func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 	}
 
 }
+
 func AdminLogin(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		var input domain.User
 		input.Email = c.PostForm("email")
+
+		fmt.Println("here is the email", input.Email)
 		input.Password = c.PostForm("password")
 
 		var user domain.User
-		if err := db.Where("email = ?", input.Email).First(&user).Error; err != nil {
-			fmt.Println("User not found:", err)
+
+		if err := db.Where("email=?", input.Email).First(&user).Error; err != nil {
 			c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": "invalid credentials"})
+			return
+		}
+
+		if !user.IsAdmin {
+			c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": "user is not admin"})
 			return
 		}
 
 		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-			fmt.Println("Password comparison failed:", err)
 			c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": "invalid credentials"})
 			return
 		}
-
-		// Password matched, proceed to login
 		token, err := utils.GenerateToken(user.Email)
-		fmt.Println("almas almas almas", token)
 		if err != nil {
-			fmt.Println("Error generating token:", err)
-			c.HTML(http.StatusInternalServerError, "login.html", gin.H{"error": "token error"})
+			c.HTML(http.StatusInternalServerError, "login.html", gin.H{"error": "token based error"})
 			return
 		}
 
 		c.SetCookie("token", token, 3600, "/", "localhost", false, true)
+		fmt.Println("here is the token", token)
+		fmt.Print(c.Cookie("token"))
+
 		c.Redirect(http.StatusFound, "/admin/dashboard")
+
 	}
 }

@@ -9,7 +9,7 @@ import (
 )
 
 type Claims struct {
-	email string `json:"email"`
+	Email string `json:"email"`
 	jwt.StandardClaims
 }
 

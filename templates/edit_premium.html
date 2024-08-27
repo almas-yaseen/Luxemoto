@@ -799,6 +799,26 @@
                                             </div>
 
 
+                                            <div class="col-lg-4">
+                                                <div class="mb-4">
+                                                    <label>Update  Banner image</label>
+                                                    <div class="image-grid">
+                                                        <img src="{{.Car.BannerImage}}" alt="Existing Banner Image"
+                                                            style="width: 50px; height: auto;" />
+                                                    </div>
+                                                    <a href="https://www.remove.bg/upload" target="blank">
+                                                        <p><strong>remove background<strong>
+                                                        </p>
+                                                    </a>
+                                                    <input type="file" id="bannerImageInput" name="bannerimage"
+                                                        class="form-control" />
+                                                    <div id="PreviousImage"></div>
+                                                    
+                                                </div>
+                                            </div>
+
+
+
 
 
 
@@ -991,6 +1011,25 @@
     </div>
     <!--   Core JS Files   -->
     <script>
+
+document.getElementById('bannerImageInput').addEventListener('change', function (event) {
+            const imagePreview = document.getElementById('PreviousImage');
+            imagePreview.innerHTML = ''; // Clear previous preview
+
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style = 'width: 50px; height: 50px;'
+                    imagePreview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+
         function addImageInput() {
             const container = document.getElementById('imageInputsContainer');
             const newInput = document.createElement('input');
