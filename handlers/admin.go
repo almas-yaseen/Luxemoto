@@ -1012,25 +1012,30 @@ func EditCar(db *gorm.DB) gin.HandlerFunc {
 		car.Location = c.PostForm("location")
 
 		bannerImage, err := c.FormFile("bannerimage")
+		if err == nil {
+			// Delete the old banner image if it exists
+			if car.BannerImage != "" {
+				if err := deleteFile(strings.TrimPrefix(car.BannerImage, "/")); err != nil {
+					fmt.Println("Failed to delete the old banner image:", err)
+				}
+			}
 
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add"})
-			return
+			// Upload new banner image
+			bannerImagePath := filepath.Join("uploads", fmt.Sprintf("%d_%s", car.ID, bannerImage.Filename))
+			if err := c.SaveUploadedFile(bannerImage, bannerImagePath); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save the banner image"})
+				return
+			}
+			bannerImagePath = "/" + strings.ReplaceAll(bannerImagePath, "\\", "/")
+			car.BannerImage = bannerImagePath
 		}
-		fmt.Println("here is the banner image", bannerImage)
-		bannerImagePath := filepath.Join("uploads", fmt.Sprintf("%d_%s", time.Now().UnixNano(), bannerImage.Filename))
 
-		if err := c.SaveUploadedFile(bannerImage, bannerImagePath); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add the banner image"})
-			return
-		}
-		car.BannerImage = "/" + strings.ReplaceAll(bannerImagePath, "\\", "/")
 		form, err := c.MultipartForm()
 
 		if err == nil {
 
 			files := form.File["images[]"]
-			fmt.Println("here is the images", files)
+			fmt.Println("here is the imagesxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", files)
 
 			var newImages []domain.Image
 
@@ -1345,30 +1350,35 @@ func AddProduct(db *gorm.DB, whatsappClient *services.WhatsAppClient) gin.Handle
 		vehicle.Status = c.PostForm("status")
 		vehicle.Price, _ = strconv.Atoi(c.PostForm("price"))
 		vehicle.CarType = c.PostForm("car_type")
+		fmt.Println("here is the car type xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", vehicle.CarType)
 		vehicle.FuelType = c.PostForm("fuel_type")
 		vehicle.Engine_size = c.PostForm("engine_size")
 		vehicle.Insurance_date = c.PostForm("insurance_date")
 		vehicle.Location = c.PostForm("location")
 
-		// Handle file uploads
+		// Handle banner image only for premium cars
+		if vehicle.Vehicle_type != "Mini" {
+			bannerImage, err := c.FormFile("bannerimage")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Banner image is required for premium cars"})
+				return
+			}
+			bannerImagePath := filepath.Join("uploads", fmt.Sprintf("%d_%s", time.Now().UnixNano(), bannerImage.Filename))
+
+			if err := c.SaveUploadedFile(bannerImage, bannerImagePath); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save the banner image"})
+				return
+			}
+			vehicle.BannerImage = "/" + strings.ReplaceAll(bannerImagePath, "\\", "/")
+		}
+
+		// Handle file uploads for images
 		form, err := c.MultipartForm()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to get the form"})
 			return
 		}
 		files := form.File["images[]"]
-		bannerImage, err := c.FormFile("bannerImage")
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add banner image"})
-			return
-		}
-		bannerImagePath := filepath.Join("uploads", fmt.Sprintf("%d_%s", time.Now().UnixNano(), bannerImage.Filename))
-
-		if err := c.SaveUploadedFile(bannerImage, bannerImagePath); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save the banner image"})
-			return
-		}
-		vehicle.BannerImage = "/" + strings.ReplaceAll(bannerImagePath, "\\", "/")
 
 		for _, file := range files {
 			filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), file.Filename)
@@ -1397,7 +1407,6 @@ func AddProduct(db *gorm.DB, whatsappClient *services.WhatsAppClient) gin.Handle
 
 		// Create channels for concurrent processing
 		messageChannel := make(chan string, len(enquiries))
-		fmt.Println("this is almas", messageChannel)
 		errorChannel := make(chan error, len(enquiries))
 		defer close(messageChannel)
 		defer close(errorChannel)
