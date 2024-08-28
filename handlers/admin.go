@@ -1011,12 +1011,27 @@ func EditCar(db *gorm.DB) gin.HandlerFunc {
 		car.Insurance_date = c.PostForm("insurance_date")
 		car.Location = c.PostForm("location")
 
+		bannerImage, err := c.FormFile("bannerimage")
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add"})
+			return
+		}
+		fmt.Println("here is the banner image", bannerImage)
+		bannerImagePath := filepath.Join("uploads", fmt.Sprintf("%d_%s", time.Now().UnixNano(), bannerImage.Filename))
+
+		if err := c.SaveUploadedFile(bannerImage, bannerImagePath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add the banner image"})
+			return
+		}
+		car.BannerImage = "/" + strings.ReplaceAll(bannerImagePath, "\\", "/")
 		form, err := c.MultipartForm()
 
 		if err == nil {
 
-			fmt.Println("here is the form", form)
 			files := form.File["images[]"]
+			fmt.Println("here is the images", files)
+
 			var newImages []domain.Image
 
 			for _, file := range files {
@@ -1651,7 +1666,7 @@ func AdminLogin(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		c.SetCookie("token", token, 3600, "/", "13.55.153.116", false, true)
+		c.SetCookie("token", token, 3600, "/", "localhost", false, true)
 		fmt.Println("here is the token", token)
 		fmt.Print(c.Cookie("token"))
 
