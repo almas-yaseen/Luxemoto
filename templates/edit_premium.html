@@ -755,79 +755,83 @@
                                                     
                                                 </div>
                                             </div>
-                                        </div>
-
-                                    </div>
-
-                                    <button type="submit" class="btn btn-md rounded font-sm hover-up">Add
-                                        product</button>
-                            
-                                        <div class="col-lg-6">
-                                            <div class="card mb-4">
-                                                <div class="card-header">
-                                                    <h4>Media</h4>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="form-group">
-                                                        <label>Update Images</label>
-                                                        <div id="existingImages" class="image-grid d-flex flex-wrap">
-                                                            {{ if .Car.Images }}
-                                                            {{ range .Car.Images }}
-                                                            <div class="existing-image-container m-2" id="container_{{ .ID }}">
-                                                                <input type="checkbox" id="delete_image_{{ .ID }}" name="delete_images"
-                                                                    value="{{ .ID }}" onchange="toggleImageVisibility('{{ .ID }}')"
-                                                                    class="hidden-checkbox" />
-                                                                <div class="w-full d-flex justify-content-end">
-                                                                    <label for="delete_image_{{ .ID }}"
-                                                                        class="custom-checkbox ">x</label>
-                                                                </div>
-                
-                                                                <div class="d-flex justify-content-center align-items-center position-relative"
-                                                                    style="width: 100px; height: 100px;">
-                                                                    <img style="width: 100%; height: 100%;" src="{{ .Path }}"
-                                                                        class="existing-image" alt="Existing Image"
-                                                                        id="image_{{ .ID }}" />
-                                                                    <label for="replace_image_{{ .ID }}"
-                                                                        class="position-absolute center-icon btn btn-outline-dark btn-sm">
-                                                                        <i class="fa fa-plus" aria-hidden="true"
-                                                                            style="cursor: pointer;"></i>
-                                                                    </label>
-                                                                </div>
-                
-                                                                <input type="file" id="replace_image_{{ .ID }}"
-                                                                    name="replace_image_{{ .ID }}" class="form-control-file image-input"
-                                                                    accept="image/*" style="display:none;"
-                                                                    onchange="replaceImage('{{ .ID }}', event)" />
-                                                            </div>
-                                                            {{ end }}
-                                                            {{ else }}
-                                                            <p>No images available.</p>
-                                                            {{ end }}
-                                                        </div>
-                
+                                            <div class="col-lg-5">
+                                                <div class="card mb-4">
+                                                    <div class="card-header">
+                                                        <h4>Media</h4>
                                                     </div>
-                                                    <div class="row">
-                                                        <div class="container">
-                                                            <div class="form-group">
-                                                                <label>Add More Images</label>
-                                                                <div id="imageInputsContainer">
-                                                                    <input type="file" name="images[]"
-                                                                        class="form-control-file image-input" accept="image/*" />
+                                                    <div class="card-body">
+                                                        <div class="form-group">
+                                                            <label>Update Images</label>
+                                                            <div id="existingImages" class="image-grid d-flex flex-wrap">
+                                                                {{ if .Car.Images }}
+                                                                {{ range .Car.Images }}
+                                                                <div class="existing-image-container m-2" id="container_{{ .ID }}">
+                                                                    <input type="checkbox" id="delete_image_{{ .ID }}" name="delete_images"
+                                                                        value="{{ .ID }}" onchange="toggleImageVisibility('{{ .ID }}')"
+                                                                        class="hidden-checkbox" />
+                                                                    <div class="w-full d-flex justify-content-end">
+                                                                        <label for="delete_image_{{ .ID }}"
+                                                                            class="custom-checkbox ">x</label>
+                                                                    </div>
+                    
+                                                                    <div class="d-flex justify-content-center align-items-center position-relative"
+                                                                        style="width: 100px; height: 100px;">
+                                                                        <img style="width: 100%; height: 100%;" src="{{ .Path }}"
+                                                                            class="existing-image" alt="Existing Image"
+                                                                            id="image_{{ .ID }}" />
+                                                                        <label for="replace_image_{{ .ID }}"
+                                                                            class="position-absolute center-icon btn btn-outline-dark btn-sm">
+                                                                            <i class="fa fa-plus" aria-hidden="true"
+                                                                                style="cursor: pointer;"></i>
+                                                                        </label>
+                                                                    </div>
+                    
+                                                                    <input type="file" id="replace_image_{{ .ID }}"
+                                                                        name="replace_image_{{ .ID }}" class="form-control-file image-input"
+                                                                        accept="image/*" style="display:none;"
+                                                                        onchange="replaceImage('{{ .ID }}', event)" />
                                                                 </div>
-                                                                <button type="button" id="addImageInput"
-                                                                    class="btn btn-primary mt-2">Add Another Image</button>
+                                                                {{ end }}
+                                                                {{ else }}
+                                                                <p>No images available.</p>
+                                                                {{ end }}
                                                             </div>
-                                                            <div id="imagePreview"></div>
-                                                            <div id="ReplaceImage"></div>
+                    
                                                         </div>
+                                                        <div class="row">
+                                                            <div class="container">
+                                                                <div class="form-group">
+                                                                    <label>Add More Images</label>
+                                                                    <div id="imageInputsContainer">
+                                                                        <input type="file" name="images[]"
+                                                                            class="form-control-file image-input" accept="image/*" />
+                                                                    </div>
+                                                                    <button type="button" id="addImageInput"
+                                                                        class="btn btn-primary mt-2">Add Another Image</button>
+                                                                </div>
+                                                                <div id="imagePreview"></div>
+                                                                <div id="ReplaceImage"></div>
+                                                            </div>
+                                                        </div>
+                    
+                    
+                    
+                    
+                    
                                                     </div>
-                
-                
-                
-                
-                
                                                 </div>
                                             </div>
+
+
+
+
+
+
+
+
+
+
                                         </div>
 
 
@@ -835,11 +839,14 @@
 
 
 
+                                        <button type="submit" class="btn btn-md rounded font-sm hover-up">Add
+                                            product</button>
                                         <!-- form clossing was here -->
-                               
+                                </div>
                             </div>
                         </div>
-                 
+                       
+                    </form>
 
                      
 
