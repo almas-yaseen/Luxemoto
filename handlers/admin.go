@@ -1675,7 +1675,7 @@ func AdminLogin(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		c.SetCookie("token", token, 3600, "/", "13.55.153.116", false, true)
+		c.SetCookie("token", token, 3600, "/", "localhost", false, true)
 		fmt.Println("here is the token", token)
 		fmt.Print(c.Cookie("token"))
 

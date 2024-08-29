@@ -13,7 +13,7 @@ import (
 func GetBannerDetails(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var cars []domain.Vehicle
-		if err := db.Order("created_at desc").Limit(5).Preload("Brand").Preload("Images").Find(&cars).Error; err != nil {
+		if err := db.Order("created_at desc").Limit(5).Preload("Brand").Preload("Images").Where("vehicle_type= ?", "Premium").Find(&cars).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch tha database"})
 			return
 
@@ -25,31 +25,25 @@ func GetBannerDetails(db *gorm.DB) gin.HandlerFunc {
 			Brand       string `json:"brand"`
 			Id          int    `json:"id"`
 			Cartype     string `json:"car_type"`
-
-			Year    int    `json:"year"`
-			Model   string `json:"model"`
-			Variant string `json:"variant"`
-			Price   int    `json:"price"`
-			Color   string `json:"color"`
+			VehicleType string `json:"vehicle_type"`
+			Year        int    `json:"year"`
+			Model       string `json:"model"`
+			Variant     string `json:"variant"`
+			Price       int    `json:"price"`
+			Color       string `json:"color"`
 		}
 
 		var carDetails []CarDetail
 
 		for _, car := range cars {
 
-			var bannerImage string
-
-			if len(car.Images) > 0 {
-				bannerImage = car.Images[0].Path
-
-			}
-
 			carDetail := CarDetail{
-				BannerImage: bannerImage,
+				BannerImage: car.BannerImage,
 				Model:       car.Model,
 				Variant:     car.Variant,
 				Price:       car.Price,
 				Color:       car.Color,
+				VehicleType: car.Vehicle_type,
 				Cartype:     car.CarType,
 				Brand:       car.Brand.Name,
 				Year:        int(car.Year),
