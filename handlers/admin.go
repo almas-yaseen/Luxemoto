@@ -21,6 +21,24 @@ import (
 	"gorm.io/gorm"
 )
 
+func AddYoutube(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var youtube domain.YoutubeLink
+		youtubelink := c.PostForm("youtube_link") // Corrected key here
+		fmt.Println("here is the youtubelink", youtubelink)
+
+		youtube.VideoLink = youtubelink
+		if err := db.Create(&youtube).Error; err != nil {
+			// Corrected error message
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add the YouTube video"})
+			return
+		}
+
+		c.Redirect(http.StatusSeeOther, "/admin/youtube_page")
+	}
+}
+
 func AdminDashboard(db *gorm.DB) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
@@ -190,7 +208,11 @@ func AddCustomerImage(db *gorm.DB) gin.HandlerFunc {
 }
 
 func Gallery(db *gorm.DB) gin.HandlerFunc {
+
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		var (
 			gallery           []domain.CustomerImage
 			EnquiredCustomers []domain.Enquiry
@@ -232,6 +254,9 @@ func Gallery(db *gorm.DB) gin.HandlerFunc {
 
 func ChangePassword(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 
 		email := c.PostForm("email")
 		fmt.Println("here is the email", email)
@@ -283,6 +308,9 @@ func ChangePassword(db *gorm.DB) gin.HandlerFunc {
 
 func Profile(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 
 		var user []domain.User
 
@@ -297,6 +325,9 @@ func Profile(db *gorm.DB) gin.HandlerFunc {
 
 func YoutubePageDelete(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		id := c.Param("id")
 		var youtube domain.YoutubeLink
 
@@ -315,6 +346,9 @@ func YoutubePageDelete(db *gorm.DB) gin.HandlerFunc {
 
 func YoutubePageEdit(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		id := c.Param("id")
 		var youtubelink domain.YoutubeLink
 
@@ -336,6 +370,9 @@ func YoutubePageEdit(db *gorm.DB) gin.HandlerFunc {
 
 func YoutubePage(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 
 		var (
 			youtubelink       []domain.YoutubeLink
@@ -412,6 +449,9 @@ func YoutubePage(db *gorm.DB) gin.HandlerFunc {
 
 func DeleteEnquiry(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 
 		id := c.Param("id")
 		var enquiry domain.Enquiry
@@ -432,6 +472,9 @@ func DeleteEnquiry(db *gorm.DB) gin.HandlerFunc {
 
 func EditEnquiry(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		id := c.Param("id")
 
 		var enquiry domain.Enquiry
@@ -459,6 +502,9 @@ func EditEnquiry(db *gorm.DB) gin.HandlerFunc {
 
 func AddCustomer(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 
 		var Customer domain.Enquiry
 
@@ -478,6 +524,9 @@ func AddCustomer(db *gorm.DB) gin.HandlerFunc {
 
 func Enquiry(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		var (
 			enquires          []domain.Enquiry
 			page              int
@@ -551,6 +600,9 @@ func Enquiry(db *gorm.DB) gin.HandlerFunc {
 }
 func AddBrand(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 
 		var brands domain.Brand
 		brands.Name = c.PostForm("brand_name")
@@ -566,6 +618,9 @@ func AddBrand(db *gorm.DB) gin.HandlerFunc {
 
 func MiniCarsDelete(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		var cars []domain.Vehicle
 
 		id := c.Param("id")
@@ -585,6 +640,9 @@ func MiniCarsDelete(db *gorm.DB) gin.HandlerFunc {
 
 func PremiumCarsDelete(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 
 		var cars domain.Vehicle
 		id := c.Param("id")
@@ -605,6 +663,9 @@ func PremiumCarsDelete(db *gorm.DB) gin.HandlerFunc {
 
 func BrandDelete(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		var brand domain.Brand
 		id := c.Param("id")
 
@@ -632,6 +693,9 @@ func BrandDelete(db *gorm.DB) gin.HandlerFunc {
 
 func BrandEdit(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		var brand domain.Brand
 		id := c.Param("id")
 		fmt.Println("here is the id", id)
@@ -665,6 +729,9 @@ func BrandEdit(db *gorm.DB) gin.HandlerFunc {
 
 func BrandView(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		var (
 			brands            []domain.Brand
 			totalCount        int64
@@ -754,6 +821,9 @@ func BrandView(db *gorm.DB) gin.HandlerFunc {
 
 func EditCarMini(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		id := c.Param("id")
 		var car domain.Vehicle
 		var brands []domain.Brand
@@ -881,6 +951,9 @@ func EditCarMini(db *gorm.DB) gin.HandlerFunc {
 
 func MiniCars(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		fmt.Println("here is the mini cars come on")
 
 		var (
@@ -975,6 +1048,9 @@ func MiniCars(db *gorm.DB) gin.HandlerFunc {
 
 func EditCar(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		id := c.Param("id")
 		var car domain.Vehicle
 		var brands []domain.Brand
@@ -1139,6 +1215,9 @@ func deleteFile(filepath string) error {
 
 func EditPage(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		id := c.Param("id") // fetching the id from the url
 		var (
 			car               domain.Vehicle
@@ -1288,6 +1367,7 @@ func EditPageMini(db *gorm.DB) gin.HandlerFunc {
 }
 
 func GetChoices(c *gin.Context) {
+
 	c.JSON(http.StatusOK, gin.H{
 		"car_types": []string{
 			domain.CarTypeSuv,
@@ -1314,7 +1394,11 @@ func GetChoices(c *gin.Context) {
 
 // AddProduct handles adding a new vehicle and notifying customers
 func AddProduct(db *gorm.DB, whatsappClient *services.WhatsAppClient) gin.HandlerFunc {
+
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		var vehicle domain.Vehicle
 		var brand domain.Brand
 		var images []domain.Image
@@ -1442,6 +1526,12 @@ func AddProduct(db *gorm.DB, whatsappClient *services.WhatsAppClient) gin.Handle
 func ProductPage(db *gorm.DB) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 
 		var (
 			brands            []domain.Brand
@@ -1556,6 +1646,9 @@ func Adminlogin(c *gin.Context) {
 
 func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		var (
 			cars              []domain.Vehicle
 			brands            []domain.Brand
@@ -1646,7 +1739,9 @@ func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 
 func AdminLogin(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-
+		c.Header("Cache-Control", "no-store")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		var input domain.User
 		input.Email = c.PostForm("email")
 

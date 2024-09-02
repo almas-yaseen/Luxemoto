@@ -476,12 +476,6 @@
                     <h3>Change the password</h3>
 
                 </div>
-
-
-
-
-
-
                 <div class="row justify-content-center mt-5">
                     <div class="col-md-4"> <!-- Adjust the column size to reduce the form width -->
                         <form action="/admin/change_password" method="post" enctype="multipart/form-data">
@@ -523,73 +517,17 @@
                                     <a href="#!">Forgot password?</a>
                                 </div>
                             </div>
-                
                             <!-- Submit button -->
                             <button type="submit" class="btn btn-dark btn-block mb-4">Confirm</button>
-                
-                            <!-- Register buttons -->
-                    
                         </form>
                     </div>
                 </div>
-                
-
-
-
-
-
-
-
-
-
-
-
-        <!--   Core JS Files   -->
-        <script>
-            function addImageInput() {
-                const container = document.getElementById('imageInputsContainer');
-                const newInput = document.createElement('input');
-                newInput.type = 'file';
-                newInput.name = 'images[]';
-                newInput.classList.add('form-control-file', 'image-input');
-                newInput.accept = 'image/*';
-                container.appendChild(newInput);
-            }
-            // Event listener to handle click on the "Add Another Image" button
-            document.getElementById('addImageInput').addEventListener('click', function () {
-                addImageInput();
-            });// Event listener to handle change in file inputs
-            document.getElementById('imageInputsContainer').addEventListener('change', function (event) {
-                if (event.target && event.target.classList.contains('image-input')) {
-                    const files = event.target.files;
-                    const previewContainer = document.getElementById('imagePreview');
-                    for (let i = 0; i < files.length; i++) {
-                        const file = files[i];
-                        const reader = new FileReader();
-                        reader.onload = function () {
-                            const image = new Image();
-                            image.src = reader.result;
-                            image.style = 'width: 50px; height: 50px;'
-                            image.classList.add('square-image');
-                            previewContainer.appendChild(image);
-                        }
-                        reader.readAsDataURL(file);
-                    }
-                }
-            });
-        </script>
         <script src="/static/js/core/popper.min.js"></script>
         <script src="/static/js/core/bootstrap.min.js"></script>
         <script src="/static/js/plugins/perfect-scrollbar.min.js"></script>
         <script src="/static/js/plugins/smooth-scrollbar.min.js"></script>
         <script src="/static/js/plugins/chartjs.min.js"></script>
         <script src="/static/product.js"></script>
-        <script>
-
-        </script>
-        <script>
-
-        </script>
         <!-- Github buttons -->
         <script async defer src="https://buttons.github.io/buttons.js"></script>
         <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
