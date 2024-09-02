@@ -478,45 +478,21 @@
                     aria-labelledby="addBrandModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
-                            <form action="/admin/add_customers" method="post">
+                            <form action="/admin/add_youtube" method="post" enctype="multipart/form-data">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="addBrandModalLabel">Add Enquiry</h5>
+                                    <h5 class="modal-title" id="addBrandModalLabel">Add Youtube</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="form-group">
-                                        <label for="newBrandName">Customer Name</label>
-                                        <input type="text" placeholder="Enter customer name" name="customer_name"
-                                            class="form-control" id="newBrandName" required>
+                                        <label for="newBrandName">Youtube Link</label>
+                                        <input type="text" placeholder="Paste the youtube link" name="youtube_link"
+                                            class="form-control"  required>
                                     </div>
                                 </div>
-                                <div class="modal-body">
-                                    <div class="form-group">
-                                        <label for="newBrandName">Phone</label>
-                                        <input type="no" placeholder="Enter  Phone number" name="phone"
-                                            class="form-control" id="newBrandName" required>
-                                    </div>
-                                </div>
-
-
-                                <div class="modal-body">
-                                    <div class="form-group">
-                                        <label for="newBrandName">Desired price</label>
-                                        <input type="price" placeholder="Enter  the price" name="price"
-                                            class="form-control" id="newBrandName" required>
-                                    </div>
-                                </div>
-
-
-                                <div class="modal-body">
-                                    <div class="form-group">
-                                        <label for="newBrandName">Desired car</label>
-                                        <input type="text" placeholder="Enter the car" name="cars" class="form-control"
-                                            id="newBrandName" required>
-                                    </div>
-                                </div>
+                               
 
 
 
@@ -524,7 +500,7 @@
 
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn btn-primary">Add Customer</button>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
                                 </div>
                             </form>
                         </div>
@@ -709,39 +685,7 @@
 
 
     <!--   Core JS Files   -->
-    <script>
-        function addImageInput() {
-            const container = document.getElementById('imageInputsContainer');
-            const newInput = document.createElement('input');
-            newInput.type = 'file';
-            newInput.name = 'images[]';
-            newInput.classList.add('form-control-file', 'image-input');
-            newInput.accept = 'image/*';
-            container.appendChild(newInput);
-        }
-        // Event listener to handle click on the "Add Another Image" button
-        document.getElementById('addImageInput').addEventListener('click', function () {
-            addImageInput();
-        });// Event listener to handle change in file inputs
-        document.getElementById('imageInputsContainer').addEventListener('change', function (event) {
-            if (event.target && event.target.classList.contains('image-input')) {
-                const files = event.target.files;
-                const previewContainer = document.getElementById('imagePreview');
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const reader = new FileReader();
-                    reader.onload = function () {
-                        const image = new Image();
-                        image.src = reader.result;
-                        image.style = 'width: 50px; height: 50px;'
-                        image.classList.add('square-image');
-                        previewContainer.appendChild(image);
-                    }
-                    reader.readAsDataURL(file);
-                }
-            }
-        });
-    </script>
+   
     <script src="/static/js/core/popper.min.js"></script>
     <script src="/static/js/core/bootstrap.min.js"></script>
     <script src="/static/js/plugins/perfect-scrollbar.min.js"></script>

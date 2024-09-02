@@ -21,32 +21,10 @@
     <!-- CSS Files -->
     <link id="pagestyle" href="/static/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/brand.css">
   
 </head>
-<style>
-    .pagination .page-item .page-link {
-        width: 40px;
-        /* Adjust width as needed */
-        height: 40px;
-        /* Adjust height as needed */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        border-radius: 0;
-        /* Remove border-radius to make buttons square */
-        text-align: center;
-    }
 
-    .pagination .page-item.active .page-link {
-        background-color: #007bff;
-        /* Background color for active page */
-        color: white;
-        /* Text color for active page */
-        border-color: #007bff;
-        /* Border color for active page */
-    }
-</style>
 
 <body class="g-sidenav-show  bg-gray-100">
     <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 "
@@ -665,59 +643,22 @@
 
 
     <!--   Core JS Files   -->
-    <script>
-        function addImageInput() {
-            const container = document.getElementById('imageInputsContainer');
-            const newInput = document.createElement('input');
-            newInput.type = 'file';
-            newInput.name = 'images[]';
-            newInput.classList.add('form-control-file', 'image-input');
-            newInput.accept = 'image/*';
-            container.appendChild(newInput);
-        }
-        // Event listener to handle click on the "Add Another Image" button
-        document.getElementById('addImageInput').addEventListener('click', function () {
-            addImageInput();
-        });// Event listener to handle change in file inputs
-        document.getElementById('imageInputsContainer').addEventListener('change', function (event) {
-            if (event.target && event.target.classList.contains('image-input')) {
-                const files = event.target.files;
-                const previewContainer = document.getElementById('imagePreview');
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const reader = new FileReader();
-                    reader.onload = function () {
-                        const image = new Image();
-                        image.src = reader.result;
-                        image.style = 'width: 50px; height: 50px;'
-                        image.classList.add('square-image');
-                        previewContainer.appendChild(image);
-                    }
-                    reader.readAsDataURL(file);
-                }
-            }
-        });
-    </script>
     <script src="/static/js/core/popper.min.js"></script>
     <script src="/static/js/core/bootstrap.min.js"></script>
     <script src="/static/js/plugins/perfect-scrollbar.min.js"></script>
     <script src="/static/js/plugins/smooth-scrollbar.min.js"></script>
     <script src="/static/js/plugins/chartjs.min.js"></script>
-    <script src="/static/product.js"></script>
-   
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script>
 
     </script>
-    <script>
-
-    </script>
+ 
     <!-- Github buttons -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
+   
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="/static/js/soft-ui-dashboard.min.js?v=1.0.7"></script>
+    
 </body>
 
 </html>

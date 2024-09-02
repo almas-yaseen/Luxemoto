@@ -1,0 +1,22 @@
+.pagination .page-item .page-link {
+    width: 40px;
+    /* Adjust width as needed */
+    height: 40px;
+    /* Adjust height as needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 0;
+    /* Remove border-radius to make buttons square */
+    text-align: center;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    /* Background color for active page */
+    color: white;
+    /* Text color for active page */
+    border-color: #007bff;
+    /* Border color for active page */
+}

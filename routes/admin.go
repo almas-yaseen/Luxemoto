@@ -53,6 +53,7 @@ func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB, whatsappClient *services.W
 		// Youtube
 
 		admin.GET("/youtube_page", handlers.YoutubePage(db))
+		admin.POST("/add_youtube", handlers.AddYoutube(db))
 		admin.POST("/youtube_page_edit/:id", handlers.YoutubePageEdit(db))
 		admin.POST("youtube_page_delete/:id", handlers.YoutubePageDelete(db))
 
