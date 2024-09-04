@@ -83,7 +83,7 @@ func Get_YoutubeLink(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"youtubelinks": youtubelinks})
+		c.JSON(http.StatusOK, gin.H{"youtubelinks": youtubelinks, "total_count": totalCount})
 	}
 }
 
