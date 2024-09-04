@@ -189,7 +189,7 @@ func AddCustomerImage(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		fmt.Println("here is teh customer image", CustomerImage)
-		customerImagePath := filepath.Join("uploads/customer", fmt.Sprintf("%d_%s", time.Now().UnixNano(), CustomerImage.Filename)) //creating  the file and the details
+		customerImagePath := filepath.Join("uploads", fmt.Sprintf("%d_%s", time.Now().UnixNano(), CustomerImage.Filename)) //creating  the file and the details
 		if err := c.SaveUploadedFile(CustomerImage, customerImagePath); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save the image"})
 			return
@@ -1484,13 +1484,15 @@ func AddProduct(db *gorm.DB, whatsappClient *services.WhatsAppClient) gin.Handle
 
 		// Find enquiries matching this vehicle model
 		var enquiries []domain.Enquiry
-		if err := db.Where("desired_cars LIKE ?", fmt.Sprintf("%%%s%%", vehicle.Model)).Find(&enquiries).Error; err != nil {
+		fmt.Println("here is the enquires")
+		if err := db.Where("desired_cars LIKE ?", fmt.Sprintf("%%%s%%", vehicle.Brand.Name)).Find(&enquiries).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find matching enquiries"})
 			return
 		}
 
 		// Create channels for concurrent processing
 		messageChannel := make(chan string, len(enquiries))
+		fmt.Println("here is the message channel", messageChannel)
 		errorChannel := make(chan error, len(enquiries))
 		defer close(messageChannel)
 		defer close(errorChannel)
@@ -1502,9 +1504,9 @@ func AddProduct(db *gorm.DB, whatsappClient *services.WhatsAppClient) gin.Handle
 				message := fmt.Sprintf("Hello %s, the vehicle %s that you enquired about is now available. Please visit our showroom or contact us for more details.", enquiry.CustomerName, vehicle.Model)
 				err := whatsappClient.SendMessage(phoneStr, message)
 				if err != nil {
-					errorChannel <- fmt.Errorf("Failed to send message to %s: %v", enquiry.Phone, err)
+					errorChannel <- fmt.Errorf("Failed to send message to %s: %v", phoneStr, err)
 				} else {
-					messageChannel <- fmt.Sprintf("Successfully sent message to %s", enquiry.Phone)
+					messageChannel <- fmt.Sprintf("Successfully sent message to %s", phoneStr)
 				}
 			}(enquiry)
 		}

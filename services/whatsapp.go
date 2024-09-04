@@ -2,6 +2,8 @@ package services
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -38,10 +40,18 @@ func (client *WhatsAppClient) SendMessage(to string, message string) error {
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	clientHTTP := &http.Client{}
-	resp, _ := clientHTTP.Do(req)
+	resp, err := clientHTTP.Do(req)
+	if err != nil {
+		return fmt.Errorf("Failed to send WhatsApp message to %s: %v", to, err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("here is the body", body)
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		log.Printf("Successfully sent message to %s. Response: %s", to, string(body))
 		return nil
 	} else {
-		return fmt.Errorf("Failed to send WhatsApp message: %s", resp.Status)
+		return fmt.Errorf("Failed to send WhatsApp message to %s: %s", to, resp.Status)
 	}
 }
