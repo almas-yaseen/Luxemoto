@@ -383,7 +383,18 @@ func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 		var (
 			cars        []domain.Vehicle
 			total_count int64
+			page        int
+			limit       int
+			offset      int
 		)
+		page, _ = strconv.Atoi(ctx.DefaultQuery("page", "1"))
+
+		if page < 1 {
+			page = 1
+		}
+		limit, _ = strconv.Atoi(ctx.DefaultQuery("limit", "5"))
+
+		offset = (page - 1) * limit
 
 		// Adjust the query based on the car type
 		query := db.Model(&domain.Vehicle{}).Order("created_at desc").Preload("Brand").Preload("Images")
@@ -410,7 +421,7 @@ func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		// Query to get the cars (already set up with the filters)
-		if err := query.Find(&cars).Error; err != nil {
+		if err := query.Order("created_at desc").Limit(limit).Offset(offset).Find(&cars).Error; err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the cars"})
 			return
 		}
