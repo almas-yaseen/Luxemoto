@@ -72,7 +72,7 @@ func Get_YoutubeLink(db *gorm.DB) gin.HandlerFunc {
 		if page < 1 {
 			page = 1
 		}
-		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "10"))
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "5"))
 		offset = (page - 1) * limit
 
 		if err := db.Model(&domain.YoutubeLink{}).Count(&totalCount).Error; err != nil {
@@ -140,7 +140,7 @@ func GetStockCarAll(db *gorm.DB) gin.HandlerFunc {
 		if page < 1 {
 			page = 1
 		}
-		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "10"))
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "5"))
 		offset = (page - 1) * limit
 
 		BrandIDStr := c.Query("brand_id")
