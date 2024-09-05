@@ -373,13 +373,30 @@ func GetMiniCarsAll(db *gorm.DB) gin.HandlerFunc {
 
 	}
 }
-
 func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		// Extract the 'type' parameter from the URL path
+		carType := ctx.Param("type")
+		fmt.Println("here is the carType", carType)
+
 		var cars []domain.Vehicle
 
-		if err := db.Order("created_at desc").Preload("Brand").Preload("Images").Find(&cars).Error; err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the brand"})
+		// Adjust the query based on the car type
+		query := db.Order("created_at desc").Preload("Brand").Preload("Images")
+
+		switch carType {
+		case "p":
+			query = query.Where("vehicle_type = ?", "Premium")
+			fmt.Println("here is the query", query)
+		case "m":
+			query = query.Where("vehicle_type = ?", "Mini")
+		default:
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid car type"})
+			return
+		}
+
+		if err := query.Find(&cars).Error; err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the cars"})
 			return
 		}
 
@@ -404,12 +421,10 @@ func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 		for _, car := range cars {
 			var image string
 			if len(car.Images) > 0 {
-
 				image = car.Images[0].Path
 			}
 
-			CarWithImage := CarWithImage{
-
+			carWithImage := CarWithImage{
 				ID:           car.ID,
 				Brand:        car.Brand.Name,
 				Model:        car.Model,
@@ -426,11 +441,10 @@ func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 				Price:        car.Price,
 				Image:        image,
 			}
-			result = append(result, CarWithImage)
+			result = append(result, carWithImage)
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{"all_cars": result})
-
 	}
 }
 
