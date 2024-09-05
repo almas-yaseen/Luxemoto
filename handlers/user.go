@@ -5,6 +5,7 @@ import (
 	"ginapp/domain"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -376,30 +377,45 @@ func GetMiniCarsAll(db *gorm.DB) gin.HandlerFunc {
 func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// Extract the 'type' parameter from the URL path
-		carType := ctx.Param("type")
+		carType := strings.TrimSpace(ctx.Param("type")) // Trim spaces/newlines
 		fmt.Println("here is the carType", carType)
 
-		var cars []domain.Vehicle
+		var (
+			cars        []domain.Vehicle
+			total_count int64
+		)
 
 		// Adjust the query based on the car type
-		query := db.Order("created_at desc").Preload("Brand").Preload("Images")
+		query := db.Model(&domain.Vehicle{}).Order("created_at desc").Preload("Brand").Preload("Images")
+
+		// Separate query for counting
+		countQuery := db.Model(&domain.Vehicle{})
 
 		switch carType {
 		case "p":
 			query = query.Where("vehicle_type = ?", "Premium")
-			fmt.Println("here is the query", query)
+			countQuery = countQuery.Where("vehicle_type = ?", "Premium")
 		case "m":
 			query = query.Where("vehicle_type = ?", "Mini")
+			countQuery = countQuery.Where("vehicle_type = ?", "Mini")
 		default:
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid car type"})
 			return
 		}
 
+		// Count total cars based on the car type
+		if err := countQuery.Count(&total_count).Error; err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to count the cars"})
+			return
+		}
+
+		// Query to get the cars (already set up with the filters)
 		if err := query.Find(&cars).Error; err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the cars"})
 			return
 		}
 
+		// Prepare the result with the cars and total count
 		type CarWithImage struct {
 			ID           uint   `json:"id"`
 			Brand        string `json:"brand"`
@@ -444,7 +460,11 @@ func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 			result = append(result, carWithImage)
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{"all_cars": result})
+		// Send the response with total count and cars
+		ctx.JSON(http.StatusOK, gin.H{
+			"total_count": total_count, // Total number of cars
+			"all_cars":    result,      // Cars data
+		})
 	}
 }
 
