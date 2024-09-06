@@ -997,7 +997,7 @@ func MiniCars(db *gorm.DB) gin.HandlerFunc {
 		if page < 1 {
 			page = 1
 		}
-		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "1"))
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "5"))
 
 		offset = (page - 1) * limit
 		if err := db.Preload("Brand").Order("created_at desc").Limit(limit).Offset(offset).Where("vehicle_type=?", "Mini").Find(&cars).Error; err != nil {
@@ -1693,7 +1693,7 @@ func PremiumCars(db *gorm.DB) gin.HandlerFunc {
 			page = 1
 		}
 
-		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "10"))
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "5"))
 
 		offset = (page - 1) * limit
 
