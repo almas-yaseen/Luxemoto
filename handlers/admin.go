@@ -219,9 +219,21 @@ func Gallery(db *gorm.DB) gin.HandlerFunc {
 			PremiumCarsTotal  int64
 			MiniCarsTotal     int64
 			TotalCars         int64
+			page              int
+			limit             int
+			offset            int
+			totalCount        int64
 		)
 
-		if err := db.Find(&gallery).Error; err != nil {
+		page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
+		if page < 1 {
+			page = 1
+		}
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "1"))
+
+		offset = (page - 1) * limit
+
+		if err := db.Order("created_at desc").Limit(limit).Offset(offset).Find(&gallery).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "customer image failed to get"})
 			return
 		}
@@ -230,7 +242,7 @@ func Gallery(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		if err := db.Model(&domain.Vehicle{}).Count(&TotalCars).Error; err != nil {
+		if err := db.Model(&domain.CustomerImage{}).Count(&totalCount).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count total cars"})
 			return
 		}
@@ -244,9 +256,21 @@ func Gallery(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count mini cars"})
 			return
 		}
+
+		totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
+		pages := make([]int, totalPages)
+
+		for i := range pages {
+			pages[i] = i + 1
+		}
+
 		c.HTML(http.StatusOK, "gallery.html", gin.H{"enquries": gallery, "CurrentPath": c.Request.URL.Path, "enquiredcustomers": len(EnquiredCustomers),
 			"premiumcarstotal": PremiumCarsTotal,
 			"minicarstotal":    MiniCarsTotal,
+			"Page":             page,
+			"Limit":            limit,
+			"totalPages":       totalPages,
+			"totalCount":       totalCount,
 			"totalcars":        TotalCars})
 
 	}
