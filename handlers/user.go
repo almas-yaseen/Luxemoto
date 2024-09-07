@@ -376,7 +376,8 @@ func GetMiniCarsAll(db *gorm.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{"mini_cars": result})
 
 	}
-}func GetCarAll(db *gorm.DB) gin.HandlerFunc {
+}
+func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		carType := strings.TrimSpace(ctx.Param("type"))
 		carType = strings.TrimPrefix(carType, "/")
@@ -519,7 +520,6 @@ func GetMiniCarsAll(db *gorm.DB) gin.HandlerFunc {
 		})
 	}
 }
-
 
 func GetSpecificVehicle(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
