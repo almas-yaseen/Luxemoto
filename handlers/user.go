@@ -144,6 +144,7 @@ func GetStockCarAll(db *gorm.DB) gin.HandlerFunc {
 		offset = (page - 1) * limit
 
 		BrandIDStr := c.Query("brand_id")
+		fmt.Println("here is thge brand id", BrandIDStr)
 		carType := c.Query("car_type")
 		fuelType := c.Query("fuel_type")
 		minPrice := c.Query("min_price")
@@ -157,12 +158,14 @@ func GetStockCarAll(db *gorm.DB) gin.HandlerFunc {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid brandID format"})
 				return
 			}
-			query = query.Where("brand_id=?", brandID)
+			query = query.Where("brand_id = ?", brandID)
+			fmt.Println("here is the query come on", query)
 
 		}
 
 		if carType != "" {
 			query = query.Where("car_type = ?", carType)
+			fmt.Println("here is the query in cartype", carType)
 		}
 
 		if fuelType != "" {
@@ -373,12 +376,10 @@ func GetMiniCarsAll(db *gorm.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{"mini_cars": result})
 
 	}
-}
-func GetCarAll(db *gorm.DB) gin.HandlerFunc {
+}func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		// Extract the 'type' parameter from the URL path
-		carType := strings.TrimSpace(ctx.Param("type")) // Trim spaces/newlines
-		fmt.Println("here is the carType", carType)
+		carType := strings.TrimSpace(ctx.Param("type"))
+		carType = strings.TrimPrefix(carType, "/")
 
 		var (
 			cars        []domain.Vehicle
@@ -387,63 +388,105 @@ func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 			limit       int
 			offset      int
 		)
-		page, _ = strconv.Atoi(ctx.DefaultQuery("page", "1"))
 
-		if page < 1 {
+		// Set pagination parameters
+		page, err := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+		if err != nil || page < 1 {
 			page = 1
 		}
-		limit, _ = strconv.Atoi(ctx.DefaultQuery("limit", "5"))
+
+		limit, err = strconv.Atoi(ctx.DefaultQuery("limit", "5"))
+		if err != nil || limit < 1 {
+			limit = 5
+		}
 
 		offset = (page - 1) * limit
 
-		// Adjust the query based on the car type
+		// Query parameters for filtering
+		brandIDStr := ctx.Query("brand_id")
+		fuelType := ctx.Query("fuel_type")
+		minPrice := ctx.Query("min_price")
+		maxPrice := ctx.Query("max_price")
+
+		// Initialize the query
 		query := db.Model(&domain.Vehicle{}).Order("created_at desc").Preload("Brand").Preload("Images")
 
-		// Separate query for counting
-		countQuery := db.Model(&domain.Vehicle{})
+		// Filter by brand_id if provided
+		if brandIDStr != "" {
+			brandID, err := strconv.ParseUint(brandIDStr, 10, 64)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid brand_id format"})
+				return
+			}
+			query = query.Where("brand_id = ?", brandID)
+		}
 
+		// Filter by fuel type if provided
+		if fuelType != "" {
+			query = query.Where("fuel_type = ?", fuelType)
+		}
+
+		// Filter by min and max price if provided
+		if minPrice != "" {
+			minPriceFloat, err := strconv.ParseFloat(minPrice, 64)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid min_price format"})
+				return
+			}
+			query = query.Where("price >= ?", minPriceFloat)
+		}
+
+		if maxPrice != "" {
+			maxPriceFloat, err := strconv.ParseFloat(maxPrice, 64)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid max_price format"})
+				return
+			}
+			query = query.Where("price <= ?", maxPriceFloat)
+		}
+
+		// Filter by car type from the URL path
 		switch carType {
 		case "p":
 			query = query.Where("vehicle_type = ?", "Premium")
-			countQuery = countQuery.Where("vehicle_type = ?", "Premium")
 		case "m":
 			query = query.Where("vehicle_type = ?", "Mini")
-			countQuery = countQuery.Where("vehicle_type = ?", "Mini")
+		case "":
+			query = query.Where("vehicle_type = ?", "Premium")
 		default:
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid car type"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid car type"})
 			return
 		}
 
-		// Count total cars based on the car type
-		if err := countQuery.Count(&total_count).Error; err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to count the cars"})
+		// Count total cars based on the filters
+		if err := query.Count(&total_count).Error; err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to count cars"})
 			return
 		}
 
-		// Query to get the cars (already set up with the filters)
-		if err := query.Order("created_at desc").Limit(limit).Offset(offset).Find(&cars).Error; err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find the cars"})
+		// Get the cars based on the filters, with pagination
+		if err := query.Limit(limit).Offset(offset).Find(&cars).Error; err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch cars"})
 			return
 		}
 
-		// Prepare the result with the cars and total count
+		// Prepare the response structure
 		type CarWithImage struct {
 			ID           uint   `json:"id"`
 			Brand        string `json:"brand"`
 			Model        string `json:"model"`
 			Year         int    `json:"year"`
 			Color        string `json:"color"`
-			Variant      string `json:"variant"`
 			CarType      string `json:"car_type"`
 			FuelType     string `json:"fuel_type"`
+			Variant      string `json:"variant"`
 			Kms          int    `json:"kms"`
 			Ownership    int    `json:"ownership"`
 			Transmission string `json:"transmission"`
-			RegNo        string `json:"reg_no"`
-			Status       string `json:"status"`
 			Price        int    `json:"price"`
 			Image        string `json:"image"`
 		}
+
 		var result []CarWithImage
 		for _, car := range cars {
 			var image string
@@ -457,27 +500,26 @@ func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 				Model:        car.Model,
 				Year:         car.Year,
 				Color:        car.Color,
+				CarType:      car.CarType,
+				FuelType:     car.FuelType,
 				Variant:      car.Variant,
 				Kms:          car.Kms,
 				Ownership:    car.Ownership,
-				FuelType:     car.FuelType,
-				CarType:      car.CarType,
 				Transmission: car.Transmission,
-				RegNo:        car.RegNo,
-				Status:       car.Status,
 				Price:        car.Price,
 				Image:        image,
 			}
 			result = append(result, carWithImage)
 		}
 
-		// Send the response with total count and cars
+		// Send the final response with the cars and total count
 		ctx.JSON(http.StatusOK, gin.H{
-			"total_count": total_count, // Total number of cars
+			"total_count": total_count, // Total number of cars after filtering
 			"all_cars":    result,      // Cars data
 		})
 	}
 }
+
 
 func GetSpecificVehicle(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
