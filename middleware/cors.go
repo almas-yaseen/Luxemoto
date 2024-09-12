@@ -10,7 +10,7 @@ import (
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
-		if origin == "https://www.luxemoto.in.in" || origin == "http://localhost:5173" {
+		if origin == "https://www.luxemoto.in" || origin == "http://localhost:5173" {
 			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 		}
 
