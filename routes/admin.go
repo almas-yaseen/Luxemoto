@@ -3,13 +3,12 @@ package routes
 import (
 	"ginapp/handlers"
 	"ginapp/middleware"
-	"ginapp/services"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB, whatsappClient *services.WhatsAppClient) *gin.RouterGroup {
+func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 
 	admin.GET("/login", handlers.Adminlogin)
 	admin.POST("/login", handlers.AdminLogin(db))
@@ -22,7 +21,7 @@ func AdminRoutes(admin *gin.RouterGroup, db *gorm.DB, whatsappClient *services.W
 
 		//product
 		admin.GET("/product", handlers.ProductPage(db))
-		admin.POST("/add_product", handlers.AddProduct(db, whatsappClient))
+		admin.POST("/add_product", handlers.AddProduct(db))
 
 		//premium cars
 		admin.GET("/PremiumCars", handlers.PremiumCars(db))

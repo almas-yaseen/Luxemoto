@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"ginapp/domain"
-	"ginapp/services"
 	"ginapp/utils"
 	"html/template"
-	"log"
 	"math"
 	"net/http"
 	"os"
@@ -1417,7 +1415,7 @@ func GetChoices(c *gin.Context) {
 // SendMessage sends a WhatsApp message to the specified number
 
 // AddProduct handles adding a new vehicle and notifying customers
-func AddProduct(db *gorm.DB, whatsappClient *services.WhatsAppClient) gin.HandlerFunc {
+func AddProduct(db *gorm.DB) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		c.Header("Cache-Control", "no-store")
@@ -1522,28 +1520,6 @@ func AddProduct(db *gorm.DB, whatsappClient *services.WhatsAppClient) gin.Handle
 		defer close(errorChannel)
 
 		// Send WhatsApp messages concurrently
-		for _, enquiry := range enquiries {
-			go func(enquiry domain.Enquiry) {
-				phoneStr := strconv.Itoa(enquiry.Phone)
-				message := fmt.Sprintf("Hello %s, the vehicle %s that you enquired about is now available. Please visit our showroom or contact us for more details.", enquiry.CustomerName, vehicle.Model)
-				err := whatsappClient.SendMessage(phoneStr, message)
-				if err != nil {
-					errorChannel <- fmt.Errorf("Failed to send message to %s: %v", phoneStr, err)
-				} else {
-					messageChannel <- fmt.Sprintf("Successfully sent message to %s", phoneStr)
-				}
-			}(enquiry)
-		}
-
-		// Collect results from the channels
-		for i := 0; i < len(enquiries); i++ {
-			select {
-			case msg := <-messageChannel:
-				log.Println(msg)
-			case err := <-errorChannel:
-				log.Println(err)
-			}
-		}
 
 		c.Redirect(http.StatusSeeOther, "/admin/product")
 	}

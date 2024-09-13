@@ -8,7 +8,6 @@ import (
 	"ginapp/database"
 	"ginapp/middleware"
 	"ginapp/routes"
-	"ginapp/services"
 	"html/template"
 	"log"
 	"strings"
@@ -65,7 +64,7 @@ func main() {
 	fmt.Println("Database connection successful!")
 
 	// Initialize WhatsApp client
-	whatsappClient := services.NewWhatsAppClient(cfg.WhatsAppSID, cfg.WhatsAppToken, cfg.WhatsAppFrom)
+
 	// Set up Gin router
 	router := gin.Default()
 
@@ -82,7 +81,7 @@ func main() {
 
 	// Define routes
 	adminGroup := router.Group("/admin")
-	routes.AdminRoutes(adminGroup, db, whatsappClient)
+	routes.AdminRoutes(adminGroup, db)
 
 	userGroup := router.Group("/myapp")
 	routes.UserRoutes(userGroup, db)
