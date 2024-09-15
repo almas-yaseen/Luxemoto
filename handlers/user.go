@@ -72,7 +72,7 @@ func Get_YoutubeLink(db *gorm.DB) gin.HandlerFunc {
 		if page < 1 {
 			page = 1
 		}
-		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "5"))
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "10"))
 		offset = (page - 1) * limit
 
 		if err := db.Model(&domain.YoutubeLink{}).Count(&totalCount).Error; err != nil {
@@ -396,7 +396,7 @@ func GetCarAll(db *gorm.DB) gin.HandlerFunc {
 			page = 1
 		}
 
-		limit, err = strconv.Atoi(ctx.DefaultQuery("limit", "5"))
+		limit, err = strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 		if err != nil || limit < 1 {
 			limit = 5
 		}
@@ -554,7 +554,7 @@ func CustomerImages(db *gorm.DB) gin.HandlerFunc {
 		if page < 1 {
 			page = 1
 		}
-		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "5"))
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "10"))
 
 		offset = (page - 1) * limit
 
@@ -588,7 +588,7 @@ func GetAllDelivery(db *gorm.DB) gin.HandlerFunc {
 		if page < 1 {
 			page = 1
 		}
-		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "5"))
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "10"))
 
 		offset = (page - 1) * limit
 
