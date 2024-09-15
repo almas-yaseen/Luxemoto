@@ -227,7 +227,7 @@ func Gallery(db *gorm.DB) gin.HandlerFunc {
 		if page < 1 {
 			page = 1
 		}
-		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "1"))
+		limit, _ = strconv.Atoi(c.DefaultQuery("limit", "10"))
 
 		offset = (page - 1) * limit
 
