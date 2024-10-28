@@ -14,7 +14,7 @@ import (
 func GetBannerDetails(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var cars []domain.Vehicle
-		if err := db.Order("created_at desc").Limit(5).Preload("Brand").Preload("Images").Where("vehicle_type= ?", "Premium").Find(&cars).Error; err != nil {
+		if err := db.Order("created_at desc").Limit(10).Preload("Brand").Preload("Images").Where("vehicle_type= ?", "Premium").Find(&cars).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch tha database"})
 			return
 
